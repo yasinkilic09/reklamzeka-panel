@@ -1,5 +1,6 @@
 "use client";
 
+import { MemberMenu } from "@/components/member-menu";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
@@ -34,7 +35,7 @@ export function AppTopNav() {
   }
 
   return (
-    <div className="mb-6 rounded-[1.5rem] border border-white/10 bg-white/[0.055] p-3 shadow-xl shadow-black/20 backdrop-blur-2xl">
+    <div className="relative z-[100] mb-6 rounded-[1.5rem] border border-white/10 bg-white/[0.055] p-3 shadow-xl shadow-black/20 backdrop-blur-2xl">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <a href="/" className="flex items-center gap-3 px-2">
           <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-lg shadow-blue-600/20">
@@ -68,12 +69,8 @@ export function AppTopNav() {
             ))}
           </nav>
 
-          <button
-            onClick={handleLogout}
-            className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-200 transition hover:bg-red-500/20"
-          >
-            Çıkış Yap
-          </button>
+          <MemberMenu />
+
         </div>
       </div>
     </div>
