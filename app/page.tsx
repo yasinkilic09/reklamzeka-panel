@@ -65,6 +65,12 @@ const menuItems = [
     active: false,
     icon: "◈",
   },
+  {
+    title: "Hesap Merkezi",
+    href: "/hesap",
+    active: false,
+    icon: "◌",
+  },
   { title: "AI Motoru", href: "#", active: false, icon: "✺" },
   { title: "Ayarlar", href: "#", active: false, icon: "⚙" },
 ];
