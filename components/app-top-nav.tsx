@@ -1,3 +1,8 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+
 const navItems = [
   {
     title: "Dashboard",
@@ -18,6 +23,15 @@ const navItems = [
 ];
 
 export function AppTopNav() {
+  const router = useRouter();
+  const supabase = createClient();
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    router.push("/auth/login");
+    router.refresh();
+  }
+
   return (
     <div className="mb-6 rounded-[1.5rem] border border-white/10 bg-white/[0.055] p-3 shadow-xl shadow-black/20 backdrop-blur-2xl">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -32,17 +46,26 @@ export function AppTopNav() {
           </div>
         </a>
 
-        <nav className="flex flex-wrap gap-2">
-          {navItems.map((item) => (
-            <a
-              key={item.href}
-              href={item.href}
-              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300 transition hover:bg-white/10 hover:text-white"
-            >
-              {item.title}
-            </a>
-          ))}
-        </nav>
+        <div className="flex flex-wrap items-center gap-2">
+          <nav className="flex flex-wrap gap-2">
+            {navItems.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                className="rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300 transition hover:bg-white/10 hover:text-white"
+              >
+                {item.title}
+              </a>
+            ))}
+          </nav>
+
+          <button
+            onClick={handleLogout}
+            className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-200 transition hover:bg-red-500/20"
+          >
+            Çıkış Yap
+          </button>
+        </div>
       </div>
     </div>
   );

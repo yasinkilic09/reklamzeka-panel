@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 type SavedCampaign = {
@@ -92,6 +93,15 @@ function mapBusinessProfile(row: SupabaseBusinessProfile): BusinessProfile {
 }
 
 export default function Home() {
+  const router = useRouter();
+
+  async function handleLogout() {
+  const supabase = createClient();
+  await supabase.auth.signOut();
+  router.push("/auth/login");
+  router.refresh();
+}
+
   const [campaigns, setCampaigns] = useState<SavedCampaign[]>([]);
   const [businessProfiles, setBusinessProfiles] = useState<BusinessProfile[]>(
     []
@@ -99,44 +109,56 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    async function loadDashboardData() {
-      setIsLoading(true);
+  async function loadDashboardData() {
+    setIsLoading(true);
 
-      const supabase = createClient();
+    const supabase = createClient();
 
-      const [campaignsResponse, profilesResponse] = await Promise.all([
-        supabase
-          .from("campaigns")
-          .select("*")
-          .eq("is_archived", false)
-          .order("created_at", { ascending: false }),
-        supabase
-          .from("business_profiles")
-          .select("*")
-          .order("created_at", { ascending: false }),
-      ]);
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
 
-      if (campaignsResponse.error) {
-        console.error(campaignsResponse.error);
-        alert("Kampanya verileri yüklenirken hata oluştu.");
-      } else {
-        setCampaigns((campaignsResponse.data || []).map(mapCampaign));
-      }
-
-      if (profilesResponse.error) {
-        console.error(profilesResponse.error);
-        alert("İşletme verileri yüklenirken hata oluştu.");
-      } else {
-        setBusinessProfiles(
-          (profilesResponse.data || []).map(mapBusinessProfile)
-        );
-      }
-
-      setIsLoading(false);
+    if (userError || !user) {
+      router.push("/auth/login");
+      return;
     }
 
-    loadDashboardData();
-  }, []);
+    const [campaignsResponse, profilesResponse] = await Promise.all([
+      supabase
+        .from("campaigns")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("is_archived", false)
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("business_profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false }),
+    ]);
+
+    if (campaignsResponse.error) {
+      console.error(campaignsResponse.error);
+      alert("Kampanya verileri yüklenirken hata oluştu.");
+    } else {
+      setCampaigns((campaignsResponse.data || []).map(mapCampaign));
+    }
+
+    if (profilesResponse.error) {
+      console.error(profilesResponse.error);
+      alert("İşletme verileri yüklenirken hata oluştu.");
+    } else {
+      setBusinessProfiles(
+        (profilesResponse.data || []).map(mapBusinessProfile)
+      );
+    }
+
+    setIsLoading(false);
+  }
+
+  loadDashboardData();
+}, [router]);
 
   const stats = [
     {
@@ -236,6 +258,13 @@ export default function Home() {
               </a>
             ))}
           </nav>
+
+          <button
+  onClick={handleLogout}
+  className="mt-4 w-full rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-left text-sm font-medium text-red-200 transition hover:bg-red-500/20"
+>
+  Çıkış Yap
+</button>
 
           <div className="mt-10 rounded-3xl border border-blue-400/20 bg-blue-500/10 p-5">
             <p className="text-sm font-semibold text-blue-100">

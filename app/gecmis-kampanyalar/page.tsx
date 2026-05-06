@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { AppTopNav } from "@/components/app-top-nav";
 import { createClient } from "@/lib/supabase/client";
 
@@ -44,38 +45,53 @@ function mapCampaign(row: SupabaseCampaign): SavedCampaign {
 
 export default function CampaignHistoryPage() {
   const supabase = createClient();
+  const router = useRouter();
 
   const [campaigns, setCampaigns] = useState<SavedCampaign[]>([]);
   const [selectedCampaign, setSelectedCampaign] =
     useState<SavedCampaign | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState<string>("");
 
   useEffect(() => {
     loadCampaigns();
   }, []);
 
   async function loadCampaigns() {
-    setIsLoading(true);
+  setIsLoading(true);
 
-    const { data, error } = await supabase
-  .from("campaigns")
-  .select("*")
-  .eq("is_archived", false)
-  .order("created_at", { ascending: false });
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
 
-    if (error) {
-      console.error(error);
-      alert("Kampanyalar yüklenirken hata oluştu.");
-      setIsLoading(false);
-      return;
-    }
-
-    const mappedCampaigns = (data || []).map(mapCampaign);
-
-    setCampaigns(mappedCampaigns);
-    setSelectedCampaign(mappedCampaigns[0] || null);
-    setIsLoading(false);
+  if (userError || !user) {
+    router.push("/auth/login");
+    return;
   }
+
+  setCurrentUserId(user.id);
+
+  const { data, error } = await supabase
+    .from("campaigns")
+    .select("*")
+    .eq("user_id", user.id)
+    .eq("is_archived", false)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error(error);
+    alert("Kampanyalar yüklenirken hata oluştu.");
+    setIsLoading(false);
+    return;
+  }
+
+  const mappedCampaigns = (data || []).map(mapCampaign);
+
+  setCampaigns(mappedCampaigns);
+  setSelectedCampaign(mappedCampaigns[0] || null);
+  setIsLoading(false);
+}
 
   async function archiveCampaign(id: string) {
   const isConfirmed = confirm(
@@ -84,13 +100,20 @@ export default function CampaignHistoryPage() {
 
   if (!isConfirmed) return;
 
-  const { error } = await supabase
-    .from("campaigns")
-    .update({
-      is_archived: true,
-      archived_at: new Date().toISOString(),
-    })
-    .eq("id", id);
+  if (!currentUserId) {
+  alert("Oturum bulunamadı. Lütfen tekrar giriş yap.");
+  router.push("/auth/login");
+  return;
+}
+
+const { error } = await supabase
+  .from("campaigns")
+  .update({
+    is_archived: true,
+    archived_at: new Date().toISOString(),
+  })
+  .eq("id", id)
+  .eq("user_id", currentUserId);
 
   if (error) {
     console.error(error);

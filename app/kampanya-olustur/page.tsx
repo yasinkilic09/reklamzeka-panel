@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { AppTopNav } from "@/components/app-top-nav";
 import { createClient } from "@/lib/supabase/client";
 
@@ -82,6 +83,7 @@ function mapBusinessProfile(row: SupabaseBusinessProfile): BusinessProfile {
 
 export default function CampaignCreatePage() {
   const supabase = createClient();
+  const router = useRouter();
 
   const [form, setForm] = useState<CampaignForm>(initialForm);
   const [result, setResult] = useState<string>("");
@@ -91,29 +93,43 @@ export default function CampaignCreatePage() {
   const [selectedBusinessId, setSelectedBusinessId] = useState<string>("");
   const [isLoadingProfiles, setIsLoadingProfiles] = useState(true);
   const [isSavingCampaign, setIsSavingCampaign] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string>("");
 
   useEffect(() => {
     loadBusinessProfiles();
   }, []);
 
   async function loadBusinessProfiles() {
-    setIsLoadingProfiles(true);
+  setIsLoadingProfiles(true);
 
-    const { data, error } = await supabase
-      .from("business_profiles")
-      .select("*")
-      .order("created_at", { ascending: false });
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
 
-    if (error) {
-      console.error(error);
-      alert("İşletme profilleri yüklenirken hata oluştu.");
-      setIsLoadingProfiles(false);
-      return;
-    }
-
-    setBusinessProfiles((data || []).map(mapBusinessProfile));
-    setIsLoadingProfiles(false);
+  if (userError || !user) {
+    router.push("/auth/login");
+    return;
   }
+
+  setCurrentUserId(user.id);
+
+  const { data, error } = await supabase
+    .from("business_profiles")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error(error);
+    alert("İşletme profilleri yüklenirken hata oluştu.");
+    setIsLoadingProfiles(false);
+    return;
+  }
+
+  setBusinessProfiles((data || []).map(mapBusinessProfile));
+  setIsLoadingProfiles(false);
+}
 
   function updateField(field: keyof CampaignForm, value: string) {
     setForm((current) => ({
@@ -306,17 +322,24 @@ ${businessName} için en doğru reklam yaklaşımı; ${city} bölgesinde ${targe
 
     const finalOutput = output.trim();
 
-    setIsSavingCampaign(true);
+    if (!currentUserId) {
+  alert("Oturum bulunamadı. Lütfen tekrar giriş yap.");
+  router.push("/auth/login");
+  return;
+}
 
-    const { error } = await supabase.from("campaigns").insert({
-      business_name: businessName,
-      sector,
-      city,
-      goal,
-      budget,
-      platform,
-      output: finalOutput,
-    });
+setIsSavingCampaign(true);
+
+const { error } = await supabase.from("campaigns").insert({
+  user_id: currentUserId,
+  business_name: businessName,
+  sector,
+  city,
+  goal,
+  budget,
+  platform,
+  output: finalOutput,
+});
 
     if (error) {
       console.error(error);

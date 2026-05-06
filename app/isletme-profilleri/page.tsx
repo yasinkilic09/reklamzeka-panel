@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 type BusinessProfile = {
@@ -81,6 +82,7 @@ function mapBusinessProfile(row: SupabaseBusinessProfile): BusinessProfile {
 
 export default function BusinessProfilesPage() {
   const supabase = createClient();
+  const router = useRouter();
 
   const [profiles, setProfiles] = useState<BusinessProfile[]>([]);
   const [form, setForm] = useState<BusinessForm>(initialForm);
@@ -89,32 +91,46 @@ export default function BusinessProfilesPage() {
   );
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string>("");
 
   useEffect(() => {
     loadProfiles();
   }, []);
 
   async function loadProfiles() {
-    setIsLoading(true);
+  setIsLoading(true);
 
-    const { data, error } = await supabase
-      .from("business_profiles")
-      .select("*")
-      .order("created_at", { ascending: false });
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
 
-    if (error) {
-      console.error(error);
-      alert("İşletme profilleri yüklenirken hata oluştu.");
-      setIsLoading(false);
-      return;
-    }
-
-    const mappedProfiles = (data || []).map(mapBusinessProfile);
-
-    setProfiles(mappedProfiles);
-    setSelectedProfile(mappedProfiles[0] || null);
-    setIsLoading(false);
+  if (userError || !user) {
+    router.push("/auth/login");
+    return;
   }
+
+  setCurrentUserId(user.id);
+
+  const { data, error } = await supabase
+    .from("business_profiles")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error(error);
+    alert("İşletme profilleri yüklenirken hata oluştu.");
+    setIsLoading(false);
+    return;
+  }
+
+  const mappedProfiles = (data || []).map(mapBusinessProfile);
+
+  setProfiles(mappedProfiles);
+  setSelectedProfile(mappedProfiles[0] || null);
+  setIsLoading(false);
+}
 
   function updateField(field: keyof BusinessForm, value: string) {
     setForm((current) => ({
@@ -131,19 +147,26 @@ export default function BusinessProfilesPage() {
 
     setIsSaving(true);
 
-    const { data, error } = await supabase
-      .from("business_profiles")
-      .insert({
-        business_name: form.businessName,
-        sector: form.sector,
-        city: form.city,
-        address: form.address,
-        target_audience: form.targetAudience,
-        brand_tone: form.brandTone,
-        instagram: form.instagram,
-        phone: form.phone,
-        notes: form.notes,
-      })
+    if (!currentUserId) {
+  alert("Oturum bulunamadı. Lütfen tekrar giriş yap.");
+  router.push("/auth/login");
+  return;
+}
+
+const { data, error } = await supabase
+  .from("business_profiles")
+  .insert({
+    user_id: currentUserId,
+    business_name: form.businessName,
+    sector: form.sector,
+    city: form.city,
+    address: form.address,
+    target_audience: form.targetAudience,
+    brand_tone: form.brandTone,
+    instagram: form.instagram,
+    phone: form.phone,
+    notes: form.notes,
+  })
       .select()
       .single();
 
@@ -168,9 +191,10 @@ export default function BusinessProfilesPage() {
     if (!isConfirmed) return;
 
     const { error } = await supabase
-      .from("business_profiles")
-      .delete()
-      .eq("id", id);
+  .from("business_profiles")
+  .delete()
+  .eq("id", id)
+  .eq("user_id", currentUserId);
 
     if (error) {
       console.error(error);
