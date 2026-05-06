@@ -8,7 +8,7 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "AdMind AI | ReklamZekâ Panel",
+  title: "AdMind-Ai | AI Marketing Panel",
   description:
     "KOBİ'ler için yapay zekâ destekli reklam stratejisi ve kampanya üretim paneli.",
 };

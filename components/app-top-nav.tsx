@@ -48,9 +48,9 @@ export function AppTopNav() {
 </div>
 
           <div>
-           <p className="text-sm font-bold text-white">AdMind AI</p>
+           <p className="text-sm font-bold text-white">AdMind-Ai</p>
 <p className="text-xs uppercase tracking-[0.22em] text-cyan-200/70">
-  ReklamZekâ Panel
+  AI Marketing Panel
 </p>
           </div>
         </a>
