@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { AppTopNav } from "@/components/app-top-nav";
+import { createClient } from "@/lib/supabase/client";
 
 type SavedCampaign = {
   id: string;
@@ -15,37 +16,96 @@ type SavedCampaign = {
   output: string;
 };
 
+type SupabaseCampaign = {
+  id: string;
+  created_at: string;
+  business_name: string;
+  sector: string | null;
+  city: string | null;
+  goal: string | null;
+  budget: string | null;
+  platform: string | null;
+  output: string;
+};
+
+function mapCampaign(row: SupabaseCampaign): SavedCampaign {
+  return {
+    id: row.id,
+    createdAt: row.created_at,
+    businessName: row.business_name,
+    sector: row.sector || "",
+    city: row.city || "",
+    goal: row.goal || "",
+    budget: row.budget || "",
+    platform: row.platform || "",
+    output: row.output,
+  };
+}
+
 export default function CampaignHistoryPage() {
+  const supabase = createClient();
+
   const [campaigns, setCampaigns] = useState<SavedCampaign[]>([]);
   const [selectedCampaign, setSelectedCampaign] =
     useState<SavedCampaign | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const savedCampaigns = JSON.parse(
-      localStorage.getItem("reklamzeka_campaigns") || "[]"
-    ) as SavedCampaign[];
-
-    setCampaigns(savedCampaigns);
-    setSelectedCampaign(savedCampaigns[0] || null);
+    loadCampaigns();
   }, []);
 
-  function deleteCampaign(id: string) {
-    const isConfirmed = confirm("Bu kampanyayı silmek istediğine emin misin?");
-    if (!isConfirmed) return;
+  async function loadCampaigns() {
+    setIsLoading(true);
 
-    const updatedCampaigns = campaigns.filter((campaign) => campaign.id !== id);
+    const { data, error } = await supabase
+  .from("campaigns")
+  .select("*")
+  .eq("is_archived", false)
+  .order("created_at", { ascending: false });
 
-    localStorage.setItem(
-      "reklamzeka_campaigns",
-      JSON.stringify(updatedCampaigns)
-    );
-
-    setCampaigns(updatedCampaigns);
-
-    if (selectedCampaign?.id === id) {
-      setSelectedCampaign(updatedCampaigns[0] || null);
+    if (error) {
+      console.error(error);
+      alert("Kampanyalar yüklenirken hata oluştu.");
+      setIsLoading(false);
+      return;
     }
+
+    const mappedCampaigns = (data || []).map(mapCampaign);
+
+    setCampaigns(mappedCampaigns);
+    setSelectedCampaign(mappedCampaigns[0] || null);
+    setIsLoading(false);
   }
+
+  async function archiveCampaign(id: string) {
+  const isConfirmed = confirm(
+    "Bu kampanyayı arşivlemek istediğine emin misin? Kayıt Supabase'den silinmeyecek, sadece listeden kaldırılacak."
+  );
+
+  if (!isConfirmed) return;
+
+  const { error } = await supabase
+    .from("campaigns")
+    .update({
+      is_archived: true,
+      archived_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+
+  if (error) {
+    console.error(error);
+    alert("Kampanya arşivlenirken hata oluştu.");
+    return;
+  }
+
+  const updatedCampaigns = campaigns.filter((campaign) => campaign.id !== id);
+
+  setCampaigns(updatedCampaigns);
+
+  if (selectedCampaign?.id === id) {
+    setSelectedCampaign(updatedCampaigns[0] || null);
+  }
+}
 
   function copyOutput() {
     if (!selectedCampaign) return;
@@ -80,7 +140,7 @@ export default function CampaignHistoryPage() {
 
       <div className="relative mx-auto max-w-7xl px-5 py-8 lg:px-8">
         <AppTopNav />
-        
+
         <div className="mb-8 flex flex-col justify-between gap-5 rounded-[2rem] border border-white/10 bg-white/[0.055] p-6 shadow-2xl shadow-black/30 backdrop-blur-2xl lg:flex-row lg:items-center">
           <div>
             <a
@@ -95,8 +155,8 @@ export default function CampaignHistoryPage() {
             </h1>
 
             <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300 lg:text-base">
-              Oluşturulan reklam stratejilerini görüntüle, detaylarını incele,
-              çıktıyı kopyala veya gereksiz kampanyaları arşivden kaldır.
+              Supabase veritabanına kaydedilen reklam stratejilerini görüntüle,
+              detaylarını incele, çıktıyı kopyala veya kampanyayı sil.
             </p>
           </div>
 
@@ -112,7 +172,11 @@ export default function CampaignHistoryPage() {
           </div>
         </div>
 
-        {campaigns.length === 0 ? (
+        {isLoading ? (
+          <div className="rounded-[2rem] border border-white/10 bg-white/[0.055] p-10 text-center shadow-2xl shadow-black/20 backdrop-blur-xl">
+            <p className="text-slate-300">Kampanyalar yükleniyor...</p>
+          </div>
+        ) : campaigns.length === 0 ? (
           <div className="rounded-[2rem] border border-white/10 bg-white/[0.055] p-10 text-center shadow-2xl shadow-black/20 backdrop-blur-xl">
             <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-3xl bg-blue-500/15 text-3xl">
               ◈
@@ -121,8 +185,8 @@ export default function CampaignHistoryPage() {
             <h2 className="text-2xl font-black">Henüz kampanya yok</h2>
 
             <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-slate-400">
-              İlk AI reklam kampanyanı oluşturduğunda burada listelenecek.
-              Kampanya çıktıları otomatik olarak kaydedilir.
+              İlk AI reklam kampanyanı oluşturduğunda burada Supabase’den
+              okunarak listelenecek.
             </p>
 
             <a
@@ -139,7 +203,7 @@ export default function CampaignHistoryPage() {
                 <div>
                   <h2 className="text-2xl font-bold">Kampanya Listesi</h2>
                   <p className="mt-2 text-sm text-slate-400">
-                    En yeni kampanyalar üstte görünür.
+                    Veriler Supabase campaigns tablosundan okunuyor.
                   </p>
                 </div>
 
@@ -165,7 +229,7 @@ export default function CampaignHistoryPage() {
                       </div>
 
                       <span className="rounded-full bg-blue-500/15 px-3 py-1 text-[11px] text-blue-200">
-                        {campaign.platform}
+                        {campaign.platform || "Platform yok"}
                       </span>
                     </div>
 
@@ -174,16 +238,17 @@ export default function CampaignHistoryPage() {
                     </h3>
 
                     <p className="mt-1 text-sm text-slate-400">
-                      {campaign.sector} • {campaign.city}
+                      {campaign.sector || "Sektör yok"} •{" "}
+                      {campaign.city || "Şehir yok"}
                     </p>
 
                     <p className="mt-3 line-clamp-2 text-xs leading-5 text-slate-500">
-                      {campaign.goal}
+                      {campaign.goal || "Hedef belirtilmedi"}
                     </p>
 
                     <div className="mt-4 flex items-center justify-between gap-3">
                       <span className="rounded-full bg-white/5 px-3 py-1 text-xs text-slate-300">
-                        {campaign.budget}
+                        {campaign.budget || "Bütçe yok"}
                       </span>
 
                       <span className="text-xs text-slate-500">
@@ -212,7 +277,8 @@ export default function CampaignHistoryPage() {
                         </h2>
 
                         <p className="mt-1 text-sm text-slate-400">
-                          {selectedCampaign.sector} • {selectedCampaign.city}
+                          {selectedCampaign.sector || "Sektör yok"} •{" "}
+                          {selectedCampaign.city || "Şehir yok"}
                         </p>
 
                         <p className="mt-2 text-xs text-slate-500">
@@ -230,21 +296,30 @@ export default function CampaignHistoryPage() {
                       </button>
 
                       <button
-                        onClick={() => deleteCampaign(selectedCampaign.id)}
-                        className="rounded-2xl border border-red-500/30 bg-red-500/5 px-4 py-3 text-sm font-medium text-red-300 transition hover:bg-red-500/10"
-                      >
-                        Sil
-                      </button>
+  onClick={() => archiveCampaign(selectedCampaign.id)}
+  className="rounded-2xl border border-red-500/30 bg-red-500/5 px-4 py-3 text-sm font-medium text-red-300 transition hover:bg-red-500/10"
+>
+  Arşivle
+</button>
                     </div>
                   </div>
 
                   <div className="mb-6 grid gap-4 md:grid-cols-4">
-                    <InfoCard title="Sektör" value={selectedCampaign.sector} />
-                    <InfoCard title="Şehir" value={selectedCampaign.city} />
-                    <InfoCard title="Bütçe" value={selectedCampaign.budget} />
+                    <InfoCard
+                      title="Sektör"
+                      value={selectedCampaign.sector || "Belirtilmedi"}
+                    />
+                    <InfoCard
+                      title="Şehir"
+                      value={selectedCampaign.city || "Belirtilmedi"}
+                    />
+                    <InfoCard
+                      title="Bütçe"
+                      value={selectedCampaign.budget || "Belirtilmedi"}
+                    />
                     <InfoCard
                       title="Platform"
-                      value={selectedCampaign.platform}
+                      value={selectedCampaign.platform || "Belirtilmedi"}
                     />
                   </div>
 
@@ -254,7 +329,7 @@ export default function CampaignHistoryPage() {
                     </p>
 
                     <p className="mt-2 text-sm leading-6 text-slate-200">
-                      {selectedCampaign.goal}
+                      {selectedCampaign.goal || "Hedef belirtilmedi"}
                     </p>
                   </div>
 
@@ -265,7 +340,7 @@ export default function CampaignHistoryPage() {
                       </span>
 
                       <span className="rounded-full bg-purple-500/15 px-3 py-1 text-xs text-purple-200">
-                        Otomatik kaydedildi
+                        Supabase kaydı
                       </span>
 
                       {latestCampaign?.id === selectedCampaign.id && (

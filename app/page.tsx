@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 type SavedCampaign = {
   id: string;
@@ -20,63 +21,146 @@ type BusinessProfile = {
   businessName: string;
   sector: string;
   city: string;
-  address: string;
-  targetAudience: string;
-  brandTone: string;
-  instagram: string;
-  phone: string;
-  notes: string;
+};
+
+type SupabaseCampaign = {
+  id: string;
+  created_at: string;
+  business_name: string;
+  sector: string | null;
+  city: string | null;
+  goal: string | null;
+  budget: string | null;
+  platform: string | null;
+  output: string;
+};
+
+type SupabaseBusinessProfile = {
+  id: string;
+  created_at: string;
+  business_name: string;
+  sector: string | null;
+  city: string | null;
 };
 
 const menuItems = [
   { title: "Dashboard", href: "/", active: true, icon: "◆" },
-  { title: "Kampanya Oluştur", href: "/kampanya-olustur", active: false, icon: "✦" },
-  { title: "İşletme Profilleri", href: "/isletme-profilleri", active: false, icon: "●" },
-  { title: "Geçmiş Kampanyalar", href: "/gecmis-kampanyalar", active: false, icon: "◈" },
+  {
+    title: "Kampanya Oluştur",
+    href: "/kampanya-olustur",
+    active: false,
+    icon: "✦",
+  },
+  {
+    title: "İşletme Profilleri",
+    href: "/isletme-profilleri",
+    active: false,
+    icon: "●",
+  },
+  {
+    title: "Geçmiş Kampanyalar",
+    href: "/gecmis-kampanyalar",
+    active: false,
+    icon: "◈",
+  },
   { title: "AI Motoru", href: "#", active: false, icon: "✺" },
   { title: "Ayarlar", href: "#", active: false, icon: "⚙" },
 ];
 
+function mapCampaign(row: SupabaseCampaign): SavedCampaign {
+  return {
+    id: row.id,
+    createdAt: row.created_at,
+    businessName: row.business_name,
+    sector: row.sector || "",
+    city: row.city || "",
+    goal: row.goal || "",
+    budget: row.budget || "",
+    platform: row.platform || "",
+    output: row.output,
+  };
+}
+
+function mapBusinessProfile(row: SupabaseBusinessProfile): BusinessProfile {
+  return {
+    id: row.id,
+    createdAt: row.created_at,
+    businessName: row.business_name,
+    sector: row.sector || "",
+    city: row.city || "",
+  };
+}
+
 export default function Home() {
   const [campaigns, setCampaigns] = useState<SavedCampaign[]>([]);
-  const [businessProfiles, setBusinessProfiles] = useState<BusinessProfile[]>([]);
+  const [businessProfiles, setBusinessProfiles] = useState<BusinessProfile[]>(
+    []
+  );
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const savedCampaigns = JSON.parse(
-      localStorage.getItem("reklamzeka_campaigns") || "[]"
-    ) as SavedCampaign[];
+    async function loadDashboardData() {
+      setIsLoading(true);
 
-    const savedBusinessProfiles = JSON.parse(
-      localStorage.getItem("reklamzeka_business_profiles") || "[]"
-    ) as BusinessProfile[];
+      const supabase = createClient();
 
-    setCampaigns(savedCampaigns);
-    setBusinessProfiles(savedBusinessProfiles);
+      const [campaignsResponse, profilesResponse] = await Promise.all([
+        supabase
+          .from("campaigns")
+          .select("*")
+          .eq("is_archived", false)
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("business_profiles")
+          .select("*")
+          .order("created_at", { ascending: false }),
+      ]);
+
+      if (campaignsResponse.error) {
+        console.error(campaignsResponse.error);
+        alert("Kampanya verileri yüklenirken hata oluştu.");
+      } else {
+        setCampaigns((campaignsResponse.data || []).map(mapCampaign));
+      }
+
+      if (profilesResponse.error) {
+        console.error(profilesResponse.error);
+        alert("İşletme verileri yüklenirken hata oluştu.");
+      } else {
+        setBusinessProfiles(
+          (profilesResponse.data || []).map(mapBusinessProfile)
+        );
+      }
+
+      setIsLoading(false);
+    }
+
+    loadDashboardData();
   }, []);
 
   const stats = [
     {
-      title: "Toplam Kampanya",
-      value: campaigns.length.toString(),
-      description: "Kayıtlı reklam kampanyası",
-      badge: "+ MVP aktif",
+      title: "Aktif Kampanya",
+      value: isLoading ? "..." : campaigns.length.toString(),
+      description: "Supabase campaigns tablosundaki aktif kayıtlar",
+      badge: "Canlı veri",
     },
     {
       title: "AI Strateji Çıktısı",
-      value: campaigns.length.toString(),
-      description: "Oluşturulan reklam planı",
-      badge: "Demo motor",
+      value: isLoading ? "..." : campaigns.length.toString(),
+      description: "Üretilen ve kaydedilen reklam planı",
+      badge: "Supabase",
     },
     {
       title: "Ortalama Skor",
       value: campaigns.length > 0 ? "%82" : "%0",
-      description: "Tahmini başarı puanı",
+      description: "Demo tahmini başarı puanı",
       badge: "Analiz hazır",
     },
     {
       title: "Aktif İşletme",
-      value: businessProfiles.length.toString(),
-      description: "Kayıtlı işletme profili",
+      value: isLoading ? "..." : businessProfiles.length.toString(),
+      description: "Supabase business_profiles kayıtları",
       badge: "CRM lite",
     },
   ];
@@ -109,10 +193,10 @@ export default function Home() {
 
               <div>
                 <div className="text-2xl font-bold tracking-tight">
-                  ReklamZekâ
+                  AdMind AI
                 </div>
                 <p className="text-xs uppercase tracking-[0.28em] text-blue-200/70">
-                  AI Panel
+                  ReklamZekâ Panel
                 </p>
               </div>
             </div>
@@ -122,7 +206,8 @@ export default function Home() {
                 Teknokent MVP
               </p>
               <p className="mt-2 text-xs leading-5 text-slate-400">
-                KOBİ’ler için yapay zekâ destekli reklam stratejisi ve kampanya üretim sistemi.
+                KOBİ’ler için yapay zekâ destekli reklam stratejisi ve kampanya
+                üretim sistemi.
               </p>
             </div>
           </div>
@@ -140,7 +225,9 @@ export default function Home() {
               >
                 <span
                   className={`flex h-8 w-8 items-center justify-center rounded-xl ${
-                    item.active ? "bg-white/20" : "bg-white/5 group-hover:bg-white/10"
+                    item.active
+                      ? "bg-white/20"
+                      : "bg-white/5 group-hover:bg-white/10"
                   }`}
                 >
                   {item.icon}
@@ -152,10 +239,11 @@ export default function Home() {
 
           <div className="mt-10 rounded-3xl border border-blue-400/20 bg-blue-500/10 p-5">
             <p className="text-sm font-semibold text-blue-100">
-              Sıradaki aşama
+              Supabase aktif
             </p>
             <p className="mt-2 text-xs leading-5 text-blue-100/70">
-              Vercel canlı demo, Supabase veritabanı ve gerçek OpenAI API entegrasyonu.
+              İşletme profilleri, kampanyalar ve geçmiş kayıtlar artık gerçek
+              veritabanından okunuyor.
             </p>
           </div>
         </aside>
@@ -164,13 +252,15 @@ export default function Home() {
           <header className="mb-8 flex flex-col justify-between gap-5 rounded-[2rem] border border-white/10 bg-white/[0.055] p-5 shadow-2xl shadow-black/30 backdrop-blur-2xl lg:flex-row lg:items-center">
             <div>
               <p className="mb-2 inline-flex rounded-full border border-blue-300/20 bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-200">
-                AI destekli reklam yönetim paneli
+                Supabase bağlantılı canlı MVP
               </p>
               <h1 className="mt-3 text-3xl font-bold tracking-tight lg:text-5xl">
                 Reklam kararlarını veriye ve yapay zekâya taşı.
               </h1>
               <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300 lg:text-base">
-                İşletme profilini kaydet, kampanya amacını belirle ve yapay zekâ destekli reklam stratejisi, hedef kitle önerisi, bütçe dağılımı ve içerik fikri oluştur.
+                İşletme profilini kaydet, kampanya amacını belirle ve yapay zekâ
+                destekli reklam stratejisi, hedef kitle önerisi, bütçe dağılımı
+                ve içerik fikri oluştur.
               </p>
             </div>
 
@@ -221,7 +311,7 @@ export default function Home() {
                 <div>
                   <h2 className="text-2xl font-bold">Son Kampanyalar</h2>
                   <p className="mt-1 text-sm text-slate-400">
-                    Oluşturduğun en güncel reklam stratejileri
+                    Supabase’den gelen en güncel aktif kampanyalar
                   </p>
                 </div>
 
@@ -233,16 +323,21 @@ export default function Home() {
                 </a>
               </div>
 
-              {recentCampaigns.length === 0 ? (
+              {isLoading ? (
+                <div className="rounded-[1.5rem] border border-dashed border-white/15 bg-black/20 p-10 text-center">
+                  <p className="text-slate-300">Dashboard verileri yükleniyor...</p>
+                </div>
+              ) : recentCampaigns.length === 0 ? (
                 <div className="rounded-[1.5rem] border border-dashed border-white/15 bg-black/20 p-10 text-center">
                   <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-500/15 text-2xl">
                     ✦
                   </div>
                   <p className="text-lg font-semibold text-slate-100">
-                    Henüz kampanya oluşturulmadı.
+                    Henüz aktif kampanya yok.
                   </p>
                   <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-400">
-                    İlk kampanyanı oluşturduğunda burada otomatik olarak listelenecek.
+                    İlk kampanyanı oluşturduğunda burada Supabase’den okunarak
+                    listelenecek.
                   </p>
 
                   <a
@@ -275,20 +370,20 @@ export default function Home() {
                               {campaign.businessName}
                             </div>
                             <div className="mt-1 text-xs text-slate-500">
-                              {campaign.city}
+                              {campaign.city || "Şehir yok"}
                             </div>
                           </td>
 
                           <td className="px-5 py-5 text-slate-300">
-                            {campaign.sector}
+                            {campaign.sector || "Sektör yok"}
                           </td>
 
                           <td className="max-w-[260px] px-5 py-5 text-slate-300">
-                            {campaign.goal}
+                            {campaign.goal || "Hedef belirtilmedi"}
                           </td>
 
                           <td className="px-5 py-5 text-slate-300">
-                            {campaign.budget}
+                            {campaign.budget || "Bütçe yok"}
                           </td>
 
                           <td className="px-5 py-5">
@@ -312,21 +407,25 @@ export default function Home() {
 
                 <h2 className="text-2xl font-bold">AI Reklam Motoru</h2>
                 <p className="mt-3 text-sm leading-7 text-slate-200/80">
-                  Demo motor aktif. Sonraki aşamada gerçek OpenAI API bağlantısı ile kampanya çıktıları işletmeye özel ve değişken hale getirilecek.
+                  Demo motor aktif. Kampanyalar artık Supabase veritabanına
+                  kaydediliyor. Sonraki aşamada gerçek OpenAI API bağlantısı
+                  yapılacak.
                 </p>
 
                 <div className="mt-6 grid gap-3">
                   <div className="rounded-2xl bg-white/10 p-4">
                     <p className="text-sm font-semibold">Tamamlananlar</p>
                     <p className="mt-2 text-xs leading-5 text-slate-300">
-                      Dashboard, işletme profilleri, kampanya oluşturma, geçmiş kayıtlar ve kopyalama sistemi.
+                      Dashboard, işletme profilleri, kampanya oluşturma, geçmiş
+                      kayıtlar, arşivleme ve Supabase bağlantısı.
                     </p>
                   </div>
 
                   <div className="rounded-2xl bg-white/10 p-4">
                     <p className="text-sm font-semibold">Yaklaşan özellik</p>
                     <p className="mt-2 text-xs leading-5 text-slate-300">
-                      Canlı demo, Supabase veritabanı, kullanıcı girişi ve gerçek AI entegrasyonu.
+                      Gerçek OpenAI API entegrasyonu, kullanıcı hesabı ve PDF
+                      kampanya raporu.
                     </p>
                   </div>
                 </div>
@@ -337,10 +436,10 @@ export default function Home() {
 
                 <div className="mt-5 space-y-4">
                   {[
-                    "İşletme profili oluştur",
+                    "İşletme profilini Supabase’e kaydet",
                     "Kampanya bilgilerini gir",
                     "AI strateji çıktısı üret",
-                    "Geçmiş kampanyalarda sakla",
+                    "Geçmiş kampanyalarda arşivle",
                   ].map((step, index) => (
                     <div key={step} className="flex items-center gap-3">
                       <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500/15 text-xs font-bold text-blue-200">

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { AppTopNav } from "@/components/app-top-nav";
+import { createClient } from "@/lib/supabase/client";
 
 type CampaignForm = {
   businessName: string;
@@ -12,18 +13,6 @@ type CampaignForm = {
   budget: string;
   platform: string;
   tone: string;
-};
-
-type SavedCampaign = {
-  id: string;
-  createdAt: string;
-  businessName: string;
-  sector: string;
-  city: string;
-  goal: string;
-  budget: string;
-  platform: string;
-  output: string;
 };
 
 type BusinessProfile = {
@@ -38,6 +27,20 @@ type BusinessProfile = {
   instagram: string;
   phone: string;
   notes: string;
+};
+
+type SupabaseBusinessProfile = {
+  id: string;
+  created_at: string;
+  business_name: string;
+  sector: string | null;
+  city: string | null;
+  address: string | null;
+  target_audience: string | null;
+  brand_tone: string | null;
+  instagram: string | null;
+  phone: string | null;
+  notes: string | null;
 };
 
 const initialForm: CampaignForm = {
@@ -61,21 +64,56 @@ const tones = [
   "Satış odaklı",
 ];
 
+function mapBusinessProfile(row: SupabaseBusinessProfile): BusinessProfile {
+  return {
+    id: row.id,
+    createdAt: row.created_at,
+    businessName: row.business_name,
+    sector: row.sector || "",
+    city: row.city || "",
+    address: row.address || "",
+    targetAudience: row.target_audience || "",
+    brandTone: row.brand_tone || "Samimi ve güven veren",
+    instagram: row.instagram || "",
+    phone: row.phone || "",
+    notes: row.notes || "",
+  };
+}
+
 export default function CampaignCreatePage() {
+  const supabase = createClient();
+
   const [form, setForm] = useState<CampaignForm>(initialForm);
   const [result, setResult] = useState<string>("");
   const [businessProfiles, setBusinessProfiles] = useState<BusinessProfile[]>(
     []
   );
   const [selectedBusinessId, setSelectedBusinessId] = useState<string>("");
+  const [isLoadingProfiles, setIsLoadingProfiles] = useState(true);
+  const [isSavingCampaign, setIsSavingCampaign] = useState(false);
 
   useEffect(() => {
-    const savedProfiles = JSON.parse(
-      localStorage.getItem("reklamzeka_business_profiles") || "[]"
-    ) as BusinessProfile[];
-
-    setBusinessProfiles(savedProfiles);
+    loadBusinessProfiles();
   }, []);
+
+  async function loadBusinessProfiles() {
+    setIsLoadingProfiles(true);
+
+    const { data, error } = await supabase
+      .from("business_profiles")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error(error);
+      alert("İşletme profilleri yüklenirken hata oluştu.");
+      setIsLoadingProfiles(false);
+      return;
+    }
+
+    setBusinessProfiles((data || []).map(mapBusinessProfile));
+    setIsLoadingProfiles(false);
+  }
 
   function updateField(field: keyof CampaignForm, value: string) {
     setForm((current) => ({
@@ -103,7 +141,7 @@ export default function CampaignCreatePage() {
     }));
   }
 
-  function createDemoResult() {
+  async function createDemoResult() {
     const businessName = form.businessName || "İşletme";
     const sector = form.sector || "Belirtilmeyen sektör";
     const city = form.city || "işletmenin bulunduğu bölge";
@@ -268,28 +306,27 @@ ${businessName} için en doğru reklam yaklaşımı; ${city} bölgesinde ${targe
 
     const finalOutput = output.trim();
 
-    const newCampaign: SavedCampaign = {
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
-      businessName,
+    setIsSavingCampaign(true);
+
+    const { error } = await supabase.from("campaigns").insert({
+      business_name: businessName,
       sector,
       city,
       goal,
       budget,
       platform,
       output: finalOutput,
-    };
+    });
 
-    const savedCampaigns = JSON.parse(
-      localStorage.getItem("reklamzeka_campaigns") || "[]"
-    ) as SavedCampaign[];
-
-    localStorage.setItem(
-      "reklamzeka_campaigns",
-      JSON.stringify([newCampaign, ...savedCampaigns])
-    );
+    if (error) {
+      console.error(error);
+      alert("Kampanya Supabase'e kaydedilirken hata oluştu.");
+      setIsSavingCampaign(false);
+      return;
+    }
 
     setResult(finalOutput);
+    setIsSavingCampaign(false);
   }
 
   function copyResult() {
@@ -308,7 +345,7 @@ ${businessName} için en doğru reklam yaklaşımı; ${city} bölgesinde ${targe
 
       <div className="relative mx-auto max-w-7xl px-5 py-8 lg:px-8">
         <AppTopNav />
-        
+
         <div className="mb-8 flex flex-col justify-between gap-5 rounded-[2rem] border border-white/10 bg-white/[0.055] p-6 shadow-2xl shadow-black/30 backdrop-blur-2xl lg:flex-row lg:items-center">
           <div>
             <a
@@ -323,14 +360,13 @@ ${businessName} için en doğru reklam yaklaşımı; ${city} bölgesinde ${targe
             </h1>
 
             <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300 lg:text-base">
-              Kayıtlı işletmeni seç, kampanya hedefini gir ve yapay zekâ
-              destekli strateji çıktısını üret. Oluşturulan çıktı otomatik
-              olarak geçmiş kampanyalara kaydedilir.
+              Supabase’den işletme profili seç, kampanya hedefini gir ve reklam
+              stratejisini gerçek veritabanına kaydet.
             </p>
           </div>
 
           <div className="grid gap-3 text-sm sm:grid-cols-3 lg:w-[420px]">
-            {["Profil seç", "Bilgi gir", "AI çıktı üret"].map(
+            {["Profil seç", "Bilgi gir", "Supabase'e kaydet"].map(
               (step, index) => (
                 <div
                   key={step}
@@ -357,7 +393,7 @@ ${businessName} için en doğru reklam yaklaşımı; ${city} bölgesinde ${targe
               </div>
 
               <span className="rounded-full border border-blue-300/20 bg-blue-500/10 px-3 py-1 text-xs text-blue-200">
-                Demo AI
+                Supabase aktif
               </span>
             </div>
 
@@ -372,7 +408,11 @@ ${businessName} için en doğru reklam yaklaşımı; ${city} bölgesinde ${targe
                   onChange={(event) => selectBusinessProfile(event.target.value)}
                   className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 outline-none ring-blue-500/30 focus:ring-4"
                 >
-                  <option value="">Manuel giriş yap</option>
+                  <option value="">
+                    {isLoadingProfiles
+                      ? "İşletmeler yükleniyor..."
+                      : "Manuel giriş yap"}
+                  </option>
 
                   {businessProfiles.map((profile) => (
                     <option key={profile.id} value={profile.id}>
@@ -381,7 +421,7 @@ ${businessName} için en doğru reklam yaklaşımı; ${city} bölgesinde ${targe
                   ))}
                 </select>
 
-                {businessProfiles.length === 0 && (
+                {!isLoadingProfiles && businessProfiles.length === 0 && (
                   <p className="mt-2 text-xs text-slate-500">
                     Henüz kayıtlı işletme yok. Önce İşletme Profilleri
                     sayfasından işletme ekleyebilirsin.
@@ -389,88 +429,50 @@ ${businessName} için en doğru reklam yaklaşımı; ${city} bölgesinde ${targe
                 )}
               </div>
 
-              <div>
-                <label className="mb-2 block text-sm text-slate-300">
-                  İşletme adı
-                </label>
-                <input
-                  value={form.businessName}
-                  onChange={(event) =>
-                    updateField("businessName", event.target.value)
-                  }
-                  placeholder="Örn: Atlıbahçem"
-                  className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 outline-none ring-blue-500/30 placeholder:text-slate-600 focus:ring-4"
-                />
-              </div>
+              <InputField
+                label="İşletme adı"
+                value={form.businessName}
+                onChange={(value) => updateField("businessName", value)}
+                placeholder="Örn: Atlıbahçem"
+              />
 
               <div className="grid gap-5 md:grid-cols-2">
-                <div>
-                  <label className="mb-2 block text-sm text-slate-300">
-                    Sektör
-                  </label>
-                  <input
-                    value={form.sector}
-                    onChange={(event) =>
-                      updateField("sector", event.target.value)
-                    }
-                    placeholder="Örn: Restoran / Cafe"
-                    className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 outline-none ring-blue-500/30 placeholder:text-slate-600 focus:ring-4"
-                  />
-                </div>
+                <InputField
+                  label="Sektör"
+                  value={form.sector}
+                  onChange={(value) => updateField("sector", value)}
+                  placeholder="Örn: Restoran / Cafe"
+                />
 
-                <div>
-                  <label className="mb-2 block text-sm text-slate-300">
-                    Şehir
-                  </label>
-                  <input
-                    value={form.city}
-                    onChange={(event) => updateField("city", event.target.value)}
-                    placeholder="Örn: Aydın"
-                    className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 outline-none ring-blue-500/30 placeholder:text-slate-600 focus:ring-4"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm text-slate-300">
-                  Hedef kitle
-                </label>
-                <input
-                  value={form.targetAudience}
-                  onChange={(event) =>
-                    updateField("targetAudience", event.target.value)
-                  }
-                  placeholder="Örn: Aydın'da yaşayan aileler ve gençler"
-                  className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 outline-none ring-blue-500/30 placeholder:text-slate-600 focus:ring-4"
+                <InputField
+                  label="Şehir"
+                  value={form.city}
+                  onChange={(value) => updateField("city", value)}
+                  placeholder="Örn: Aydın"
                 />
               </div>
 
-              <div>
-                <label className="mb-2 block text-sm text-slate-300">
-                  Reklam amacı
-                </label>
-                <input
-                  value={form.goal}
-                  onChange={(event) => updateField("goal", event.target.value)}
-                  placeholder="Örn: Hafta sonu rezervasyonlarını artırmak"
-                  className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 outline-none ring-blue-500/30 placeholder:text-slate-600 focus:ring-4"
-                />
-              </div>
+              <InputField
+                label="Hedef kitle"
+                value={form.targetAudience}
+                onChange={(value) => updateField("targetAudience", value)}
+                placeholder="Örn: Aydın'da yaşayan aileler ve gençler"
+              />
+
+              <InputField
+                label="Reklam amacı"
+                value={form.goal}
+                onChange={(value) => updateField("goal", value)}
+                placeholder="Örn: Hafta sonu rezervasyonlarını artırmak"
+              />
 
               <div className="grid gap-5 md:grid-cols-3">
-                <div>
-                  <label className="mb-2 block text-sm text-slate-300">
-                    Bütçe
-                  </label>
-                  <input
-                    value={form.budget}
-                    onChange={(event) =>
-                      updateField("budget", event.target.value)
-                    }
-                    placeholder="Örn: 10.000 TL"
-                    className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 outline-none ring-blue-500/30 placeholder:text-slate-600 focus:ring-4"
-                  />
-                </div>
+                <InputField
+                  label="Bütçe"
+                  value={form.budget}
+                  onChange={(value) => updateField("budget", value)}
+                  placeholder="Örn: 10.000 TL"
+                />
 
                 <div>
                   <label className="mb-2 block text-sm text-slate-300">
@@ -507,9 +509,12 @@ ${businessName} için en doğru reklam yaklaşımı; ${city} bölgesinde ${targe
 
               <button
                 onClick={createDemoResult}
-                className="mt-2 rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4 text-sm font-bold shadow-lg shadow-blue-600/30 transition hover:scale-[1.01]"
+                disabled={isSavingCampaign}
+                className="mt-2 rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4 text-sm font-bold shadow-lg shadow-blue-600/30 transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                AI Kampanya Önerisi Oluştur ve Kaydet
+                {isSavingCampaign
+                  ? "Kaydediliyor..."
+                  : "AI Kampanya Önerisi Oluştur ve Supabase'e Kaydet"}
               </button>
             </div>
           </section>
@@ -543,7 +548,7 @@ ${businessName} için en doğru reklam yaklaşımı; ${city} bölgesinde ${targe
                     {form.tone}
                   </span>
                   <span className="rounded-full bg-cyan-500/15 px-3 py-1 text-xs text-cyan-200">
-                    Otomatik kaydedildi
+                    Supabase'e kaydedildi
                   </span>
                 </div>
 
@@ -562,7 +567,8 @@ ${businessName} için en doğru reklam yaklaşımı; ${city} bölgesinde ${targe
                   </p>
                   <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-slate-400">
                     Sol taraftaki kampanya bilgilerini doldurup butona bastığında
-                    AI reklam stratejisi burada görünecek.
+                    AI reklam stratejisi burada görünecek ve Supabase’e
+                    kaydedilecek.
                   </p>
                 </div>
               </div>
@@ -571,5 +577,29 @@ ${businessName} için en doğru reklam yaklaşımı; ${city} bölgesinde ${targe
         </div>
       </div>
     </main>
+  );
+}
+
+function InputField({
+  label,
+  value,
+  onChange,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+}) {
+  return (
+    <div>
+      <label className="mb-2 block text-sm text-slate-300">{label}</label>
+      <input
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+        className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 outline-none ring-blue-500/30 placeholder:text-slate-600 focus:ring-4"
+      />
+    </div>
   );
 }
