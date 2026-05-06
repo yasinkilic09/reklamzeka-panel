@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 
 const navItems = [
@@ -36,13 +37,21 @@ export function AppTopNav() {
     <div className="mb-6 rounded-[1.5rem] border border-white/10 bg-white/[0.055] p-3 shadow-xl shadow-black/20 backdrop-blur-2xl">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <a href="/" className="flex items-center gap-3 px-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-purple-500 text-sm font-black shadow-lg shadow-blue-600/20">
-            RZ
-          </div>
+          <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-lg shadow-blue-600/20">
+  <Image
+    src="/logo.png"
+    alt="AdMind AI Logo"
+    width={40}
+    height={40}
+    className="h-full w-full object-cover"
+  />
+</div>
 
           <div>
-            <p className="text-sm font-bold text-white">ReklamZekâ AI</p>
-            <p className="text-xs text-slate-500">Teknokent MVP Paneli</p>
+           <p className="text-sm font-bold text-white">AdMind AI</p>
+<p className="text-xs uppercase tracking-[0.22em] text-cyan-200/70">
+  ReklamZekâ Panel
+</p>
           </div>
         </a>
 

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 
 type SavedCampaign = {
@@ -209,18 +210,24 @@ export default function Home() {
         <aside className="hidden w-80 border-r border-white/10 bg-white/[0.035] p-6 backdrop-blur-2xl lg:block">
           <div className="mb-10">
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-purple-500 shadow-lg shadow-blue-600/30">
-                <span className="text-lg font-black">RZ</span>
-              </div>
+              <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-lg shadow-blue-600/30">
+  <Image
+    src="/logo.png"
+    alt="AdMind AI Logo"
+    width={56}
+    height={56}
+    className="h-full w-full object-cover"
+  />
+</div>
 
               <div>
-                <div className="text-2xl font-bold tracking-tight">
-                  AdMind AI
-                </div>
-                <p className="text-xs uppercase tracking-[0.28em] text-blue-200/70">
-                  ReklamZekâ Panel
-                </p>
-              </div>
+  <div className="bg-gradient-to-r from-white via-cyan-200 to-blue-400 bg-clip-text text-2xl font-black tracking-tight text-transparent">
+    AdMind AI
+  </div>
+  <p className="text-xs uppercase tracking-[0.32em] text-cyan-200/70">
+    AI MARKETING PANEL
+  </p>
+</div>
             </div>
 
             <div className="mt-6 rounded-3xl border border-white/10 bg-white/[0.05] p-4">
