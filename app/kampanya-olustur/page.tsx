@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AppTopNav } from "@/components/app-top-nav";
 
 type CampaignForm = {
   businessName: string;
@@ -306,6 +307,8 @@ ${businessName} için en doğru reklam yaklaşımı; ${city} bölgesinde ${targe
       </div>
 
       <div className="relative mx-auto max-w-7xl px-5 py-8 lg:px-8">
+        <AppTopNav />
+        
         <div className="mb-8 flex flex-col justify-between gap-5 rounded-[2rem] border border-white/10 bg-white/[0.055] p-6 shadow-2xl shadow-black/30 backdrop-blur-2xl lg:flex-row lg:items-center">
           <div>
             <a
