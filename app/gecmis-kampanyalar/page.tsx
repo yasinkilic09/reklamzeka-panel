@@ -29,6 +29,9 @@ export default function CampaignHistoryPage() {
   }, []);
 
   function deleteCampaign(id: string) {
+    const isConfirmed = confirm("Bu kampanyayı silmek istediğine emin misin?");
+    if (!isConfirmed) return;
+
     const updatedCampaigns = campaigns.filter((campaign) => campaign.id !== id);
 
     localStorage.setItem(
@@ -60,81 +63,128 @@ export default function CampaignHistoryPage() {
     }).format(new Date(date));
   }
 
+  const totalCampaigns = campaigns.length;
+  const instagramCampaigns = campaigns.filter(
+    (campaign) => campaign.platform === "Instagram"
+  ).length;
+  const latestCampaign = campaigns[0];
+
   return (
-    <main className="min-h-screen bg-slate-950 text-white">
-      <div className="mx-auto max-w-7xl px-6 py-10">
-        <div className="mb-8 flex flex-col justify-between gap-5 lg:flex-row lg:items-center">
+    <main className="min-h-screen overflow-hidden bg-[#070A12] text-white">
+      <div className="pointer-events-none fixed inset-0">
+        <div className="absolute left-[-10%] top-[-10%] h-[420px] w-[420px] rounded-full bg-blue-600/25 blur-[120px]" />
+        <div className="absolute right-[-8%] top-[20%] h-[420px] w-[420px] rounded-full bg-purple-600/20 blur-[130px]" />
+        <div className="absolute bottom-[-20%] left-[35%] h-[420px] w-[420px] rounded-full bg-cyan-500/10 blur-[130px]" />
+      </div>
+
+      <div className="relative mx-auto max-w-7xl px-5 py-8 lg:px-8">
+        <div className="mb-8 flex flex-col justify-between gap-5 rounded-[2rem] border border-white/10 bg-white/[0.055] p-6 shadow-2xl shadow-black/30 backdrop-blur-2xl lg:flex-row lg:items-center">
           <div>
             <a
               href="/"
-              className="text-sm font-medium text-blue-300 hover:text-blue-200"
+              className="inline-flex rounded-full border border-blue-300/20 bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-200 hover:bg-blue-500/20"
             >
               ← Dashboard'a dön
             </a>
 
-            <h1 className="mt-6 text-4xl font-bold tracking-tight">
+            <h1 className="mt-5 text-3xl font-black tracking-tight lg:text-5xl">
               Geçmiş Kampanyalar
             </h1>
 
-            <p className="mt-3 max-w-3xl text-slate-300">
-              Daha önce oluşturulan reklam kampanyalarını görüntüle, çıktılarını
-              kopyala veya gereksiz kayıtları sil.
+            <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300 lg:text-base">
+              Oluşturulan reklam stratejilerini görüntüle, detaylarını incele,
+              çıktıyı kopyala veya gereksiz kampanyaları arşivden kaldır.
             </p>
           </div>
 
-          <a
-            href="/kampanya-olustur"
-            className="rounded-2xl bg-blue-600 px-6 py-4 text-center text-sm font-semibold shadow-lg shadow-blue-600/30 transition hover:bg-blue-500"
-          >
-            Yeni Kampanya Oluştur
-          </a>
+          <div className="grid gap-3 sm:grid-cols-3 lg:w-[520px]">
+            <StatBox title="Toplam" value={totalCampaigns.toString()} />
+            <StatBox title="Instagram" value={instagramCampaigns.toString()} />
+            <a
+              href="/kampanya-olustur"
+              className="flex items-center justify-center rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 p-4 text-center text-sm font-bold shadow-lg shadow-blue-600/30 transition hover:scale-[1.02]"
+            >
+              Yeni Kampanya
+            </a>
+          </div>
         </div>
 
         {campaigns.length === 0 ? (
-          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-10 text-center">
-            <h2 className="text-2xl font-semibold">Henüz kampanya yok</h2>
-            <p className="mt-3 text-slate-400">
-              İlk kampanyanı oluşturduğunda burada listelenecek.
+          <div className="rounded-[2rem] border border-white/10 bg-white/[0.055] p-10 text-center shadow-2xl shadow-black/20 backdrop-blur-xl">
+            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-3xl bg-blue-500/15 text-3xl">
+              ◈
+            </div>
+
+            <h2 className="text-2xl font-black">Henüz kampanya yok</h2>
+
+            <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-slate-400">
+              İlk AI reklam kampanyanı oluşturduğunda burada listelenecek.
+              Kampanya çıktıları otomatik olarak kaydedilir.
             </p>
 
             <a
               href="/kampanya-olustur"
-              className="mt-6 inline-block rounded-2xl bg-blue-600 px-6 py-4 text-sm font-semibold hover:bg-blue-500"
+              className="mt-6 inline-block rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4 text-sm font-bold shadow-lg shadow-blue-600/30 transition hover:scale-[1.02]"
             >
               İlk Kampanyayı Oluştur
             </a>
           </div>
         ) : (
-          <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr]">
-            <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
-              <h2 className="mb-5 text-xl font-semibold">Kampanya Listesi</h2>
+          <div className="grid gap-8 xl:grid-cols-[0.82fr_1.18fr]">
+            <section className="rounded-[2rem] border border-white/10 bg-white/[0.055] p-6 shadow-2xl shadow-black/20 backdrop-blur-xl">
+              <div className="mb-6 flex items-start justify-between gap-4">
+                <div>
+                  <h2 className="text-2xl font-bold">Kampanya Listesi</h2>
+                  <p className="mt-2 text-sm text-slate-400">
+                    En yeni kampanyalar üstte görünür.
+                  </p>
+                </div>
 
-              <div className="space-y-3">
+                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300">
+                  {campaigns.length} kayıt
+                </span>
+              </div>
+
+              <div className="max-h-[780px] space-y-3 overflow-auto pr-1">
                 {campaigns.map((campaign) => (
                   <button
                     key={campaign.id}
                     onClick={() => setSelectedCampaign(campaign)}
                     className={`w-full rounded-2xl border p-4 text-left transition ${
                       selectedCampaign?.id === campaign.id
-                        ? "border-blue-500 bg-blue-500/15"
-                        : "border-white/10 bg-slate-900 hover:bg-white/10"
+                        ? "border-blue-500 bg-blue-500/15 shadow-lg shadow-blue-600/10"
+                        : "border-white/10 bg-slate-950/70 hover:bg-white/10"
                     }`}
                   >
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <h3 className="font-semibold">
-                          {campaign.businessName}
-                        </h3>
-                        <p className="mt-1 text-sm text-slate-400">
-                          {campaign.sector} • {campaign.city}
-                        </p>
-                        <p className="mt-2 text-xs text-slate-500">
-                          {formatDate(campaign.createdAt)}
-                        </p>
+                    <div className="mb-4 flex items-start justify-between gap-4">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-purple-500 text-sm font-black">
+                        {campaign.businessName.slice(0, 2).toUpperCase()}
                       </div>
 
-                      <span className="rounded-full bg-blue-500/15 px-3 py-1 text-xs text-blue-300">
+                      <span className="rounded-full bg-blue-500/15 px-3 py-1 text-[11px] text-blue-200">
                         {campaign.platform}
+                      </span>
+                    </div>
+
+                    <h3 className="font-bold text-white">
+                      {campaign.businessName}
+                    </h3>
+
+                    <p className="mt-1 text-sm text-slate-400">
+                      {campaign.sector} • {campaign.city}
+                    </p>
+
+                    <p className="mt-3 line-clamp-2 text-xs leading-5 text-slate-500">
+                      {campaign.goal}
+                    </p>
+
+                    <div className="mt-4 flex items-center justify-between gap-3">
+                      <span className="rounded-full bg-white/5 px-3 py-1 text-xs text-slate-300">
+                        {campaign.budget}
+                      </span>
+
+                      <span className="text-xs text-slate-500">
+                        {formatDate(campaign.createdAt)}
                       </span>
                     </div>
                   </button>
@@ -142,68 +192,102 @@ export default function CampaignHistoryPage() {
               </div>
             </section>
 
-            <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
+            <section className="rounded-[2rem] border border-white/10 bg-white/[0.055] p-6 shadow-2xl shadow-black/20 backdrop-blur-xl">
               {selectedCampaign ? (
                 <>
                   <div className="mb-6 flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
-                    <div>
-                      <h2 className="text-2xl font-semibold">
-                        {selectedCampaign.businessName}
-                      </h2>
-                      <p className="mt-2 text-sm text-slate-400">
-                        {selectedCampaign.goal}
-                      </p>
-                      <p className="mt-2 text-xs text-slate-500">
-                        {formatDate(selectedCampaign.createdAt)}
-                      </p>
+                    <div className="flex items-start gap-4">
+                      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-purple-500 text-base font-black shadow-lg shadow-blue-600/20">
+                        {selectedCampaign.businessName
+                          .slice(0, 2)
+                          .toUpperCase()}
+                      </div>
+
+                      <div>
+                        <h2 className="text-2xl font-black">
+                          {selectedCampaign.businessName}
+                        </h2>
+
+                        <p className="mt-1 text-sm text-slate-400">
+                          {selectedCampaign.sector} • {selectedCampaign.city}
+                        </p>
+
+                        <p className="mt-2 text-xs text-slate-500">
+                          {formatDate(selectedCampaign.createdAt)}
+                        </p>
+                      </div>
                     </div>
 
-                    <div className="flex gap-3">
+                    <div className="flex flex-wrap gap-3">
                       <button
                         onClick={copyOutput}
-                        className="rounded-xl border border-white/10 px-4 py-2 text-sm text-slate-200 hover:bg-white/10"
+                        className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-slate-200 transition hover:bg-white/10"
                       >
                         Çıktıyı Kopyala
                       </button>
 
                       <button
                         onClick={() => deleteCampaign(selectedCampaign.id)}
-                        className="rounded-xl border border-red-500/30 px-4 py-2 text-sm text-red-300 hover:bg-red-500/10"
+                        className="rounded-2xl border border-red-500/30 bg-red-500/5 px-4 py-3 text-sm font-medium text-red-300 transition hover:bg-red-500/10"
                       >
                         Sil
                       </button>
                     </div>
                   </div>
 
-                  <div className="mb-5 grid gap-3 md:grid-cols-4">
-                    <div className="rounded-2xl bg-slate-900 p-4">
-                      <p className="text-xs text-slate-500">Sektör</p>
-                      <p className="mt-1 text-sm">{selectedCampaign.sector}</p>
-                    </div>
-
-                    <div className="rounded-2xl bg-slate-900 p-4">
-                      <p className="text-xs text-slate-500">Şehir</p>
-                      <p className="mt-1 text-sm">{selectedCampaign.city}</p>
-                    </div>
-
-                    <div className="rounded-2xl bg-slate-900 p-4">
-                      <p className="text-xs text-slate-500">Bütçe</p>
-                      <p className="mt-1 text-sm">{selectedCampaign.budget}</p>
-                    </div>
-
-                    <div className="rounded-2xl bg-slate-900 p-4">
-                      <p className="text-xs text-slate-500">Platform</p>
-                      <p className="mt-1 text-sm">{selectedCampaign.platform}</p>
-                    </div>
+                  <div className="mb-6 grid gap-4 md:grid-cols-4">
+                    <InfoCard title="Sektör" value={selectedCampaign.sector} />
+                    <InfoCard title="Şehir" value={selectedCampaign.city} />
+                    <InfoCard title="Bütçe" value={selectedCampaign.budget} />
+                    <InfoCard
+                      title="Platform"
+                      value={selectedCampaign.platform}
+                    />
                   </div>
 
-                  <pre className="max-h-[650px] overflow-auto whitespace-pre-wrap rounded-2xl border border-white/10 bg-slate-900 p-5 text-sm leading-7 text-slate-200">
-                    {selectedCampaign.output}
-                  </pre>
+                  <div className="mb-6 rounded-[1.5rem] border border-white/10 bg-slate-950/70 p-5">
+                    <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
+                      Kampanya hedefi
+                    </p>
+
+                    <p className="mt-2 text-sm leading-6 text-slate-200">
+                      {selectedCampaign.goal}
+                    </p>
+                  </div>
+
+                  <div className="rounded-[1.5rem] border border-white/10 bg-slate-950/80 p-5">
+                    <div className="mb-4 flex flex-wrap items-center gap-2">
+                      <span className="rounded-full bg-blue-500/15 px-3 py-1 text-xs text-blue-200">
+                        AI Strateji Çıktısı
+                      </span>
+
+                      <span className="rounded-full bg-purple-500/15 px-3 py-1 text-xs text-purple-200">
+                        Otomatik kaydedildi
+                      </span>
+
+                      {latestCampaign?.id === selectedCampaign.id && (
+                        <span className="rounded-full bg-cyan-500/15 px-3 py-1 text-xs text-cyan-200">
+                          En güncel
+                        </span>
+                      )}
+                    </div>
+
+                    <pre className="max-h-[700px] overflow-auto whitespace-pre-wrap text-sm leading-7 text-slate-200">
+                      {selectedCampaign.output}
+                    </pre>
+                  </div>
                 </>
               ) : (
-                <div className="flex min-h-[500px] items-center justify-center text-center text-slate-400">
-                  Görüntülenecek kampanya seçilmedi.
+                <div className="flex min-h-[620px] items-center justify-center rounded-[1.5rem] border border-dashed border-white/15 bg-black/20 p-8 text-center">
+                  <div>
+                    <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-3xl bg-blue-500/15 text-3xl">
+                      ◈
+                    </div>
+
+                    <p className="text-xl font-bold text-slate-100">
+                      Görüntülenecek kampanya seçilmedi.
+                    </p>
+                  </div>
                 </div>
               )}
             </section>
@@ -211,5 +295,25 @@ export default function CampaignHistoryPage() {
         )}
       </div>
     </main>
+  );
+}
+
+function StatBox({ title, value }: { title: string; value: string }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+      <p className="text-xs text-slate-400">{title}</p>
+      <p className="mt-2 text-3xl font-black">{value}</p>
+    </div>
+  );
+}
+
+function InfoCard({ title, value }: { title: string; value: string }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4">
+      <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
+        {title}
+      </p>
+      <p className="mt-2 text-sm leading-6 text-slate-200">{value}</p>
+    </div>
   );
 }

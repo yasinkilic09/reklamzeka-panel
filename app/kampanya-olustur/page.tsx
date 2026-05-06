@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type CampaignForm = {
   businessName: string;
@@ -25,6 +25,20 @@ type SavedCampaign = {
   output: string;
 };
 
+type BusinessProfile = {
+  id: string;
+  createdAt: string;
+  businessName: string;
+  sector: string;
+  city: string;
+  address: string;
+  targetAudience: string;
+  brandTone: string;
+  instagram: string;
+  phone: string;
+  notes: string;
+};
+
 const initialForm: CampaignForm = {
   businessName: "",
   sector: "",
@@ -36,9 +50,31 @@ const initialForm: CampaignForm = {
   tone: "Samimi ve güven veren",
 };
 
+const platforms = ["Instagram", "Facebook", "TikTok", "Google Ads", "LinkedIn"];
+
+const tones = [
+  "Samimi ve güven veren",
+  "Profesyonel ve kurumsal",
+  "Genç ve dinamik",
+  "Lüks ve prestijli",
+  "Satış odaklı",
+];
+
 export default function CampaignCreatePage() {
   const [form, setForm] = useState<CampaignForm>(initialForm);
   const [result, setResult] = useState<string>("");
+  const [businessProfiles, setBusinessProfiles] = useState<BusinessProfile[]>(
+    []
+  );
+  const [selectedBusinessId, setSelectedBusinessId] = useState<string>("");
+
+  useEffect(() => {
+    const savedProfiles = JSON.parse(
+      localStorage.getItem("reklamzeka_business_profiles") || "[]"
+    ) as BusinessProfile[];
+
+    setBusinessProfiles(savedProfiles);
+  }, []);
 
   function updateField(field: keyof CampaignForm, value: string) {
     setForm((current) => ({
@@ -47,43 +83,62 @@ export default function CampaignCreatePage() {
     }));
   }
 
+  function selectBusinessProfile(profileId: string) {
+    setSelectedBusinessId(profileId);
+
+    const selectedProfile = businessProfiles.find(
+      (profile) => profile.id === profileId
+    );
+
+    if (!selectedProfile) return;
+
+    setForm((current) => ({
+      ...current,
+      businessName: selectedProfile.businessName,
+      sector: selectedProfile.sector,
+      city: selectedProfile.city,
+      targetAudience: selectedProfile.targetAudience,
+      tone: selectedProfile.brandTone,
+    }));
+  }
+
   function createDemoResult() {
-  const businessName = form.businessName || "İşletme";
-  const sector = form.sector || "Belirtilmeyen sektör";
-  const city = form.city || "işletmenin bulunduğu bölge";
-  const targetAudience = form.targetAudience || "yerel müşteriler";
-  const goal = form.goal || "müşteri kazanımını artırmak";
-  const budget = form.budget || "belirtilmeyen bütçe";
-  const platform = form.platform;
-  const tone = form.tone;
+    const businessName = form.businessName || "İşletme";
+    const sector = form.sector || "Belirtilmeyen sektör";
+    const city = form.city || "işletmenin bulunduğu bölge";
+    const targetAudience = form.targetAudience || "yerel müşteriler";
+    const goal = form.goal || "müşteri kazanımını artırmak";
+    const budget = form.budget || "belirtilmeyen bütçe";
+    const platform = form.platform;
+    const tone = form.tone;
 
-  const platformAdvice: Record<string, string> = {
-    Instagram:
-      "Görsel kalitesi yüksek post, reels ve hikâye reklamları birlikte kullanılmalı. İlk 3 saniyede dikkat çeken bir açılış tercih edilmeli.",
-    Facebook:
-      "Yerel hedefleme, kampanya duyuruları ve güven artırıcı müşteri yorumları öne çıkarılmalı.",
-    TikTok:
-      "Kısa, doğal, eğlenceli ve hızlı tüketilen video içerikleri kullanılmalı. Reklam dili fazla kurumsal olmamalı.",
-    "Google Ads":
-      "Arama niyeti yüksek kullanıcılar hedeflenmeli. Anahtar kelime, konum ve dönüşüm odaklı reklam metinleri hazırlanmalı.",
-    LinkedIn:
-      "Daha kurumsal, güven veren ve uzmanlık vurgusu yüksek bir reklam dili kullanılmalı.",
-  };
+    const platformAdvice: Record<string, string> = {
+      Instagram:
+        "Görsel kalitesi yüksek post, reels ve hikâye reklamları birlikte kullanılmalı. İlk 3 saniyede dikkat çeken bir açılış tercih edilmeli.",
+      Facebook:
+        "Yerel hedefleme, kampanya duyuruları ve güven artırıcı müşteri yorumları öne çıkarılmalı.",
+      TikTok:
+        "Kısa, doğal, eğlenceli ve hızlı tüketilen video içerikleri kullanılmalı. Reklam dili fazla kurumsal olmamalı.",
+      "Google Ads":
+        "Arama niyeti yüksek kullanıcılar hedeflenmeli. Anahtar kelime, konum ve dönüşüm odaklı reklam metinleri hazırlanmalı.",
+      LinkedIn:
+        "Daha kurumsal, güven veren ve uzmanlık vurgusu yüksek bir reklam dili kullanılmalı.",
+    };
 
-  const toneAdvice: Record<string, string> = {
-    "Samimi ve güven veren":
-      "Marka dili sıcak, doğal ve ulaşılabilir olmalı. Kullanıcıya doğrudan fayda anlatılmalı.",
-    "Profesyonel ve kurumsal":
-      "Net, güvenilir, ölçülebilir ve ciddi bir anlatım tercih edilmeli.",
-    "Genç ve dinamik":
-      "Daha enerjik, kısa, dikkat çekici ve sosyal medya diline yakın ifadeler kullanılmalı.",
-    "Lüks ve prestijli":
-      "Az ama güçlü kelimelerle seçkinlik, kalite ve ayrıcalık hissi verilmelidir.",
-    "Satış odaklı":
-      "Net teklif, güçlü çağrı cümlesi ve kampanya avantajı ön planda olmalıdır.",
-  };
+    const toneAdvice: Record<string, string> = {
+      "Samimi ve güven veren":
+        "Marka dili sıcak, doğal ve ulaşılabilir olmalı. Kullanıcıya doğrudan fayda anlatılmalı.",
+      "Profesyonel ve kurumsal":
+        "Net, güvenilir, ölçülebilir ve ciddi bir anlatım tercih edilmeli.",
+      "Genç ve dinamik":
+        "Daha enerjik, kısa, dikkat çekici ve sosyal medya diline yakın ifadeler kullanılmalı.",
+      "Lüks ve prestijli":
+        "Az ama güçlü kelimelerle seçkinlik, kalite ve ayrıcalık hissi verilmelidir.",
+      "Satış odaklı":
+        "Net teklif, güçlü çağrı cümlesi ve kampanya avantajı ön planda olmalıdır.",
+    };
 
-  const output = `
+    const output = `
 ${businessName} - AI Destekli Reklam Kampanyası Stratejisi
 
 1. KAMPANYA ÖZETİ
@@ -192,8 +247,6 @@ ${toneAdvice[tone] || "Marka dili hedef kitleye uygun, açık ve güven veren bi
 Bu tona göre reklam dili fazla karmaşık olmamalı. Kullanıcının ilk bakışta anlayacağı kısa, net ve fayda odaklı cümleler tercih edilmelidir.
 
 10. TAHMİNİ PERFORMANS DEĞERLENDİRMESİ
-Bu kampanya, doğru görsel ve hedefleme ile orta-yüksek performans potansiyeline sahiptir.
-
 Tahmini başarı skoru:
 %78 - %86
 
@@ -210,63 +263,129 @@ Riskler:
 
 11. SONUÇ
 ${businessName} için en doğru reklam yaklaşımı; ${city} bölgesinde ${targetAudience} kitlesine güven veren, sade, net ve aksiyon odaklı bir kampanya yapısı kurmaktır.
-
-Bu kampanya, ${platform} üzerinde test edilerek başlatılmalı; ilk 3-5 gün içinde tıklama oranı, mesaj dönüşü ve etkileşim maliyeti analiz edilerek optimize edilmelidir.
 `;
 
-const finalOutput = output.trim();
+    const finalOutput = output.trim();
 
-const newCampaign: SavedCampaign = {
-  id: Date.now().toString(),
-  createdAt: new Date().toISOString(),
-  businessName,
-  sector,
-  city,
-  goal,
-  budget,
-  platform,
-  output: finalOutput,
-};
+    const newCampaign: SavedCampaign = {
+      id: Date.now().toString(),
+      createdAt: new Date().toISOString(),
+      businessName,
+      sector,
+      city,
+      goal,
+      budget,
+      platform,
+      output: finalOutput,
+    };
 
-const savedCampaigns = JSON.parse(
-  localStorage.getItem("reklamzeka_campaigns") || "[]"
-) as SavedCampaign[];
+    const savedCampaigns = JSON.parse(
+      localStorage.getItem("reklamzeka_campaigns") || "[]"
+    ) as SavedCampaign[];
 
-localStorage.setItem(
-  "reklamzeka_campaigns",
-  JSON.stringify([newCampaign, ...savedCampaigns])
-);
+    localStorage.setItem(
+      "reklamzeka_campaigns",
+      JSON.stringify([newCampaign, ...savedCampaigns])
+    );
 
-setResult(finalOutput);
-}
+    setResult(finalOutput);
+  }
+
+  function copyResult() {
+    if (!result) return;
+    navigator.clipboard.writeText(result);
+    alert("AI kampanya çıktısı kopyalandı.");
+  }
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white">
-      <div className="mx-auto max-w-7xl px-6 py-10">
-        <div className="mb-8">
-          <a
-            href="/"
-            className="text-sm font-medium text-blue-300 hover:text-blue-200"
-          >
-            ← Dashboard'a dön
-          </a>
+    <main className="min-h-screen overflow-hidden bg-[#070A12] text-white">
+      <div className="pointer-events-none fixed inset-0">
+        <div className="absolute left-[-10%] top-[-10%] h-[420px] w-[420px] rounded-full bg-blue-600/25 blur-[120px]" />
+        <div className="absolute right-[-8%] top-[20%] h-[420px] w-[420px] rounded-full bg-purple-600/20 blur-[130px]" />
+        <div className="absolute bottom-[-20%] left-[35%] h-[420px] w-[420px] rounded-full bg-cyan-500/10 blur-[130px]" />
+      </div>
 
-          <h1 className="mt-6 text-4xl font-bold tracking-tight">
-            Kampanya Oluştur
-          </h1>
+      <div className="relative mx-auto max-w-7xl px-5 py-8 lg:px-8">
+        <div className="mb-8 flex flex-col justify-between gap-5 rounded-[2rem] border border-white/10 bg-white/[0.055] p-6 shadow-2xl shadow-black/30 backdrop-blur-2xl lg:flex-row lg:items-center">
+          <div>
+            <a
+              href="/"
+              className="inline-flex rounded-full border border-blue-300/20 bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-200 hover:bg-blue-500/20"
+            >
+              ← Dashboard'a dön
+            </a>
 
-          <p className="mt-3 max-w-3xl text-slate-300">
-            İşletme bilgilerini girerek yapay zekâ destekli reklam kampanyası
-            önerisi oluştur. Bu ekran şu anda demo mantığıyla çalışıyor; sonraki
-            aşamada OpenAI API ile gerçek üretim motoruna bağlanacak.
-          </p>
+            <h1 className="mt-5 text-3xl font-black tracking-tight lg:text-5xl">
+              Kampanya Oluştur
+            </h1>
+
+            <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300 lg:text-base">
+              Kayıtlı işletmeni seç, kampanya hedefini gir ve yapay zekâ
+              destekli strateji çıktısını üret. Oluşturulan çıktı otomatik
+              olarak geçmiş kampanyalara kaydedilir.
+            </p>
+          </div>
+
+          <div className="grid gap-3 text-sm sm:grid-cols-3 lg:w-[420px]">
+            {["Profil seç", "Bilgi gir", "AI çıktı üret"].map(
+              (step, index) => (
+                <div
+                  key={step}
+                  className="rounded-2xl border border-white/10 bg-white/5 p-4"
+                >
+                  <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-blue-500/15 text-xs font-bold text-blue-200">
+                    {index + 1}
+                  </div>
+                  <p className="font-medium text-slate-200">{step}</p>
+                </div>
+              )
+            )}
+          </div>
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-[1fr_0.9fr]">
-          <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
-            <h2 className="text-xl font-semibold">İşletme ve kampanya bilgileri</h2>
+        <div className="grid gap-8 xl:grid-cols-[0.9fr_1.1fr]">
+          <section className="rounded-[2rem] border border-white/10 bg-white/[0.055] p-6 shadow-2xl shadow-black/20 backdrop-blur-xl">
+            <div className="mb-6 flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-bold">Kampanya Bilgileri</h2>
+                <p className="mt-2 text-sm text-slate-400">
+                  Girdi kalitesi arttıkça reklam stratejisi de güçlenir.
+                </p>
+              </div>
 
-            <div className="mt-6 grid gap-5">
+              <span className="rounded-full border border-blue-300/20 bg-blue-500/10 px-3 py-1 text-xs text-blue-200">
+                Demo AI
+              </span>
+            </div>
+
+            <div className="grid gap-5">
+              <div>
+                <label className="mb-2 block text-sm text-slate-300">
+                  Kayıtlı işletme seç
+                </label>
+
+                <select
+                  value={selectedBusinessId}
+                  onChange={(event) => selectBusinessProfile(event.target.value)}
+                  className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 outline-none ring-blue-500/30 focus:ring-4"
+                >
+                  <option value="">Manuel giriş yap</option>
+
+                  {businessProfiles.map((profile) => (
+                    <option key={profile.id} value={profile.id}>
+                      {profile.businessName} - {profile.sector} / {profile.city}
+                    </option>
+                  ))}
+                </select>
+
+                {businessProfiles.length === 0 && (
+                  <p className="mt-2 text-xs text-slate-500">
+                    Henüz kayıtlı işletme yok. Önce İşletme Profilleri
+                    sayfasından işletme ekleyebilirsin.
+                  </p>
+                )}
+              </div>
+
               <div>
                 <label className="mb-2 block text-sm text-slate-300">
                   İşletme adı
@@ -277,7 +396,7 @@ setResult(finalOutput);
                     updateField("businessName", event.target.value)
                   }
                   placeholder="Örn: Atlıbahçem"
-                  className="w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 outline-none ring-blue-500/30 placeholder:text-slate-500 focus:ring-4"
+                  className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 outline-none ring-blue-500/30 placeholder:text-slate-600 focus:ring-4"
                 />
               </div>
 
@@ -292,7 +411,7 @@ setResult(finalOutput);
                       updateField("sector", event.target.value)
                     }
                     placeholder="Örn: Restoran / Cafe"
-                    className="w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 outline-none ring-blue-500/30 placeholder:text-slate-500 focus:ring-4"
+                    className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 outline-none ring-blue-500/30 placeholder:text-slate-600 focus:ring-4"
                   />
                 </div>
 
@@ -304,7 +423,7 @@ setResult(finalOutput);
                     value={form.city}
                     onChange={(event) => updateField("city", event.target.value)}
                     placeholder="Örn: Aydın"
-                    className="w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 outline-none ring-blue-500/30 placeholder:text-slate-500 focus:ring-4"
+                    className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 outline-none ring-blue-500/30 placeholder:text-slate-600 focus:ring-4"
                   />
                 </div>
               </div>
@@ -318,8 +437,8 @@ setResult(finalOutput);
                   onChange={(event) =>
                     updateField("targetAudience", event.target.value)
                   }
-                  placeholder="Örn: Aydın'da yaşayan 18-35 yaş arası gençler"
-                  className="w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 outline-none ring-blue-500/30 placeholder:text-slate-500 focus:ring-4"
+                  placeholder="Örn: Aydın'da yaşayan aileler ve gençler"
+                  className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 outline-none ring-blue-500/30 placeholder:text-slate-600 focus:ring-4"
                 />
               </div>
 
@@ -330,8 +449,8 @@ setResult(finalOutput);
                 <input
                   value={form.goal}
                   onChange={(event) => updateField("goal", event.target.value)}
-                  placeholder="Örn: Instagram üzerinden rezervasyon artırmak"
-                  className="w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 outline-none ring-blue-500/30 placeholder:text-slate-500 focus:ring-4"
+                  placeholder="Örn: Hafta sonu rezervasyonlarını artırmak"
+                  className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 outline-none ring-blue-500/30 placeholder:text-slate-600 focus:ring-4"
                 />
               </div>
 
@@ -346,7 +465,7 @@ setResult(finalOutput);
                       updateField("budget", event.target.value)
                     }
                     placeholder="Örn: 10.000 TL"
-                    className="w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 outline-none ring-blue-500/30 placeholder:text-slate-500 focus:ring-4"
+                    className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 outline-none ring-blue-500/30 placeholder:text-slate-600 focus:ring-4"
                   />
                 </div>
 
@@ -359,13 +478,11 @@ setResult(finalOutput);
                     onChange={(event) =>
                       updateField("platform", event.target.value)
                     }
-                    className="w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 outline-none ring-blue-500/30 focus:ring-4"
+                    className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 outline-none ring-blue-500/30 focus:ring-4"
                   >
-                    <option>Instagram</option>
-                    <option>Facebook</option>
-                    <option>TikTok</option>
-                    <option>Google Ads</option>
-                    <option>LinkedIn</option>
+                    {platforms.map((platform) => (
+                      <option key={platform}>{platform}</option>
+                    ))}
                   </select>
                 </div>
 
@@ -376,42 +493,73 @@ setResult(finalOutput);
                   <select
                     value={form.tone}
                     onChange={(event) => updateField("tone", event.target.value)}
-                    className="w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 outline-none ring-blue-500/30 focus:ring-4"
+                    className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 outline-none ring-blue-500/30 focus:ring-4"
                   >
-                    <option>Samimi ve güven veren</option>
-                    <option>Profesyonel ve kurumsal</option>
-                    <option>Genç ve dinamik</option>
-                    <option>Lüks ve prestijli</option>
-                    <option>Satış odaklı</option>
+                    {tones.map((tone) => (
+                      <option key={tone}>{tone}</option>
+                    ))}
                   </select>
                 </div>
               </div>
 
               <button
                 onClick={createDemoResult}
-                className="mt-2 rounded-2xl bg-blue-600 px-6 py-4 text-sm font-semibold shadow-lg shadow-blue-600/30 transition hover:bg-blue-500"
+                className="mt-2 rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4 text-sm font-bold shadow-lg shadow-blue-600/30 transition hover:scale-[1.01]"
               >
                 AI Kampanya Önerisi Oluştur ve Kaydet
               </button>
             </div>
           </section>
 
-          <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
-            <h2 className="text-xl font-semibold">AI Reklam Çıktısı</h2>
+          <section className="rounded-[2rem] border border-white/10 bg-white/[0.055] p-6 shadow-2xl shadow-black/20 backdrop-blur-xl">
+            <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
+              <div>
+                <h2 className="text-2xl font-bold">AI Reklam Çıktısı</h2>
+                <p className="mt-2 text-sm text-slate-400">
+                  Kampanya stratejisi, metin önerileri ve bütçe dağılımı.
+                </p>
+              </div>
+
+              {result && (
+                <button
+                  onClick={copyResult}
+                  className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-slate-200 transition hover:bg-white/10"
+                >
+                  Çıktıyı Kopyala
+                </button>
+              )}
+            </div>
 
             {result ? (
-              <pre className="mt-6 min-h-[500px] whitespace-pre-wrap rounded-2xl border border-white/10 bg-slate-900 p-5 text-sm leading-7 text-slate-200">
-                {result}
-              </pre>
+              <div className="rounded-[1.5rem] border border-white/10 bg-slate-950/80 p-5">
+                <div className="mb-4 flex flex-wrap gap-2">
+                  <span className="rounded-full bg-blue-500/15 px-3 py-1 text-xs text-blue-200">
+                    {form.platform}
+                  </span>
+                  <span className="rounded-full bg-purple-500/15 px-3 py-1 text-xs text-purple-200">
+                    {form.tone}
+                  </span>
+                  <span className="rounded-full bg-cyan-500/15 px-3 py-1 text-xs text-cyan-200">
+                    Otomatik kaydedildi
+                  </span>
+                </div>
+
+                <pre className="max-h-[760px] overflow-auto whitespace-pre-wrap text-sm leading-7 text-slate-200">
+                  {result}
+                </pre>
+              </div>
             ) : (
-              <div className="mt-6 flex min-h-[500px] items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-900/60 p-8 text-center">
+              <div className="flex min-h-[650px] items-center justify-center rounded-[1.5rem] border border-dashed border-white/15 bg-black/20 p-8 text-center">
                 <div>
-                  <p className="text-lg font-medium text-slate-200">
-                    Henüz kampanya çıktısı oluşturulmadı.
+                  <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-3xl bg-blue-500/15 text-3xl">
+                    ✦
+                  </div>
+                  <p className="text-xl font-bold text-slate-100">
+                    Henüz çıktı oluşturulmadı.
                   </p>
-                  <p className="mt-2 text-sm text-slate-400">
-                    Sol taraftaki formu doldurup butona bastığında demo reklam
-                    önerisi burada görünecek.
+                  <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-slate-400">
+                    Sol taraftaki kampanya bilgilerini doldurup butona bastığında
+                    AI reklam stratejisi burada görünecek.
                   </p>
                 </div>
               </div>
