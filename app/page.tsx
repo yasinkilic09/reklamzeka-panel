@@ -66,6 +66,12 @@ const menuItems = [
     icon: "◈",
   },
   {
+  title: "Arşivlenen Kampanyalar",
+  href: "/arsivlenen-kampanyalar",
+  active: false,
+  icon: "▣",
+  },
+  {
     title: "Hesap Merkezi",
     href: "/hesap",
     active: false,

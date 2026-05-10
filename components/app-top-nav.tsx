@@ -22,6 +22,10 @@ const navItems = [
     title: "Geçmiş Kampanyalar",
     href: "/gecmis-kampanyalar",
   },
+  {
+  title: "Arşiv",
+  href: "/arsivlenen-kampanyalar",
+  },
 ];
 
 export function AppTopNav() {
