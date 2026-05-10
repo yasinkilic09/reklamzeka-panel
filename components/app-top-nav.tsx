@@ -15,6 +15,10 @@ const navItems = [
     href: "/kampanya-olustur",
   },
   {
+  title: "Reklam Paketi",
+  href: "/reklam-paketi",
+  },
+  {
     title: "İşletme Profilleri",
     href: "/isletme-profilleri",
   },
