@@ -84,6 +84,12 @@ const menuItems = [
   active: false,
   icon: "✺",
   },
+  {
+  title: "Mesajdan Müşteriye",
+  href: "/mesajdan-musteriye",
+  active: false,
+  icon: "💬",
+},
 ];
 
 function mapCampaign(row: SupabaseCampaign): SavedCampaign {
