@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { DashboardActionCenter } from "@/components/dashboard-action-center";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 
@@ -361,6 +362,9 @@ export default function Home() {
             <div className="rounded-[2rem] border border-white/10 bg-white/[0.055] p-6 shadow-2xl shadow-black/20 backdrop-blur-xl">
               <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                 <div>
+
+                  <DashboardActionCenter />
+                  
                   <h2 className="text-2xl font-bold">Son Kampanyalar</h2>
                   <p className="mt-1 text-sm text-slate-400">
                     Supabase’den gelen en güncel aktif kampanyalar
