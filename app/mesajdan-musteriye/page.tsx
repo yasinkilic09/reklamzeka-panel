@@ -176,6 +176,63 @@ function getAutomationProfile(
   };
 }
 
+function getLeadProfile(messageType: string) {
+  if (messageType === "Randevu / rezervasyon isteği") {
+    return {
+      temperature: "Sıcak",
+      score: 92,
+      nextAction:
+        "Randevu/rezervasyon uygunluğu kontrol edilip hızlı dönüş yapılmalı.",
+    };
+  }
+
+  if (
+    messageType === "Fiyat sorusu" ||
+    messageType === "WhatsApp’a yönlendirme"
+  ) {
+    return {
+      temperature: "Sıcak",
+      score: 82,
+      nextAction:
+        "Fiyat veya detay bilgisi için müşteriyle hızlıca iletişime geçilmeli.",
+    };
+  }
+
+  if (messageType === "Ürün / hizmet detayı sorusu") {
+    return {
+      temperature: "Ilık",
+      score: 68,
+      nextAction:
+        "Müşteriye ürün/hizmet detayı verilip karar süreci desteklenmeli.",
+    };
+  }
+
+  if (messageType === "Kararsız müşteri") {
+    return {
+      temperature: "Ilık",
+      score: 58,
+      nextAction:
+        "Güven veren takip mesajı ile müşteri yeniden iletişime çekilmeli.",
+    };
+  }
+
+  if (messageType === "Olumsuz yorum / şikayet") {
+    return {
+      temperature: "Riskli",
+      score: 35,
+      nextAction:
+        "İşletme sahibi manuel kontrol ederek çözüm odaklı dönüş yapmalı.",
+    };
+  }
+
+  return {
+    temperature: "Ilık",
+    score: 55,
+    nextAction:
+      "Müşteriye kısa ve net bilgi verilip sonraki aksiyon sorulmalı.",
+  };
+}
+
 export default function MessageToCustomerPage() {
   const router = useRouter();
   const supabase = createClient();
@@ -197,6 +254,9 @@ export default function MessageToCustomerPage() {
   const [responseTone, setResponseTone] = useState("Samimi ve güven veren");
   const [customerMessage, setCustomerMessage] = useState("");
   const [offer, setOffer] = useState("");
+  const [customerName, setCustomerName] = useState("");
+  const [customerContact, setCustomerContact] = useState("");
+  const [isLeadSaving, setIsLeadSaving] = useState(false);
   const [contactAction, setContactAction] = useState("DM’den bilgi al");
 
   const [generatedOutput, setGeneratedOutput] = useState("");
@@ -207,26 +267,44 @@ export default function MessageToCustomerPage() {
     loadUserAndProfiles();
   }, []);
 
-  const whatsappLink = useMemo(() => {
-    if (!phone.trim() || !generatedOutput) return "";
+  const customerWhatsappLink = useMemo(() => {
+  if (!customerContact.trim() || !generatedOutput) return "";
 
-    const automationProfile = useMemo(() => {
+  const cleanContact = normalizeWhatsAppNumber(customerContact);
+  if (!cleanContact || cleanContact.length < 10) return "";
+
+  const message = encodeURIComponent(
+    `Merhaba${customerName ? ` ${customerName}` : ""}, ${businessName} olarak mesajınızla ilgili size yardımcı olmak istiyoruz.`
+  );
+
+  return `https://wa.me/${cleanContact}?text=${message}`;
+}, [customerContact, generatedOutput, customerName, businessName]);
+
+const automationProfile = useMemo(() => {
   return getAutomationProfile(messageType, channel);
 }, [messageType, channel]);
 
-    const cleanPhone = phone.replace(/[^0-9]/g, "");
-    if (!cleanPhone) return "";
+const leadProfile = useMemo(() => {
+  return getLeadProfile(messageType);
+}, [messageType]);
 
-    const message = encodeURIComponent(
-      `Merhaba, ${businessName} hakkında bilgi almak istiyorum.`
-    );
+function normalizeWhatsAppNumber(value: string) {
+  const clean = value.replace(/[^0-9]/g, "");
 
-    return `https://wa.me/${cleanPhone}?text=${message}`;
-  }, [phone, generatedOutput, businessName]);
+  if (clean.startsWith("90") && clean.length === 12) {
+    return clean;
+  }
 
-  const automationProfile = useMemo(() => {
-  return getAutomationProfile(messageType, channel);
-}, [messageType, channel]);
+  if (clean.startsWith("0") && clean.length === 11) {
+    return `9${clean}`;
+  }
+
+  if (clean.startsWith("5") && clean.length === 10) {
+    return `90${clean}`;
+  }
+
+  return clean;
+}
 
   async function loadUserAndProfiles() {
     setIsLoading(true);
@@ -577,6 +655,54 @@ Bu cevaplar otomatik gönderimden önce kontrol edilmelidir. Özellikle fiyat, �
     router.push("/gecmis-kampanyalar");
   }
 
+async function saveAsLead() {
+  if (!userId) {
+    router.push("/auth/login");
+    return;
+  }
+
+  if (!businessName.trim()) {
+    alert("Müşteri adayı kaydetmek için işletme adını gir.");
+    return;
+  }
+
+  if (!customerMessage.trim() && !generatedOutput) {
+    alert("Müşteri adayı kaydetmek için müşteri mesajı veya cevap paketi olmalı.");
+    return;
+  }
+
+  setIsLeadSaving(true);
+
+  const { error } = await supabase.from("customer_leads").insert({
+    user_id: userId,
+    business_name: businessName,
+    sector,
+    city,
+    channel,
+    message_type: messageType,
+    customer_name: customerName || null,
+    customer_contact: customerContact || null,
+    customer_message: customerMessage || null,
+    lead_status: "Yeni",
+    lead_temperature: leadProfile.temperature,
+    lead_score: leadProfile.score,
+    next_action: leadProfile.nextAction,
+    notes: "",
+    generated_reply: generatedOutput || null,
+  });
+
+  if (error) {
+    console.error(error);
+    alert("Müşteri adayı kaydedilemedi.");
+    setIsLeadSaving(false);
+    return;
+  }
+
+  setIsLeadSaving(false);
+  alert("Müşteri adayı Fırsat Takibi’ne kaydedildi.");
+  router.push("/firsat-takibi");
+}
+
   return (
     <main className="min-h-screen overflow-hidden bg-[#070A12] text-white">
       <div className="pointer-events-none fixed inset-0">
@@ -726,6 +852,22 @@ Bu cevaplar otomatik gönderimden önce kontrol edilmelidir. Özellikle fiyat, �
                   options={responseTones}
                 />
 
+<div className="grid gap-5 md:grid-cols-2">
+  <InputField
+    label="Müşteri Adı"
+    value={customerName}
+    onChange={setCustomerName}
+    placeholder="Örn: Ayşe Hanım"
+  />
+
+  <InputField
+    label="Müşteri İletişim Bilgisi"
+    value={customerContact}
+    onChange={setCustomerContact}
+    placeholder="Örn: Instagram kullanıcı adı, telefon veya WhatsApp"
+  />
+</div>
+
                 <TextareaField
                   label="Müşterinin Yazdığı Mesaj"
                   value={customerMessage}
@@ -785,16 +927,16 @@ Bu cevaplar otomatik gönderimden önce kontrol edilmelidir. Özellikle fiyat, �
                     Kopyala
                   </button>
 
-                  {whatsappLink && (
-                    <a
-                      href={whatsappLink}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm font-semibold text-emerald-200 transition hover:bg-emerald-400/20"
-                    >
-                      WhatsApp Aç
-                    </a>
-                  )}
+                  {customerWhatsappLink && (
+  <a
+    href={customerWhatsappLink}
+    target="_blank"
+    rel="noreferrer"
+    className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm font-semibold text-emerald-200 transition hover:bg-emerald-400/20"
+  >
+    Müşteriye WhatsApp’tan Yaz
+  </a>
+)}
 
                   <button
                     onClick={saveAsCampaign}
@@ -803,6 +945,13 @@ Bu cevaplar otomatik gönderimden önce kontrol edilmelidir. Özellikle fiyat, �
                   >
                     {isSaving ? "Kaydediliyor..." : "Geçmişe Kaydet"}
                   </button>
+                  <button
+  onClick={saveAsLead}
+  disabled={isLeadSaving}
+  className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm font-semibold text-emerald-200 transition hover:bg-emerald-400/20 disabled:cursor-not-allowed disabled:opacity-60"
+>
+  {isLeadSaving ? "Kaydediliyor..." : "Fırsat Olarak Kaydet"}
+</button>
                 </div>
               </div>
 

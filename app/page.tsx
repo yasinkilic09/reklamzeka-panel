@@ -90,6 +90,12 @@ const menuItems = [
   active: false,
   icon: "💬",
 },
+{
+  title: "Fırsat Takibi",
+  href: "/firsat-takibi",
+  active: false,
+  icon: "🎯",
+},
 ];
 
 function mapCampaign(row: SupabaseCampaign): SavedCampaign {
