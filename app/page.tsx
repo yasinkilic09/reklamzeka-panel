@@ -116,7 +116,7 @@ export default function Home() {
   async function handleLogout() {
   const supabase = createClient();
   await supabase.auth.signOut();
-  router.push("/auth/login");
+  router.push("/tanitim");
   router.refresh();
 }
 
@@ -138,9 +138,9 @@ export default function Home() {
     } = await supabase.auth.getUser();
 
     if (userError || !user) {
-      router.push("/auth/login");
-      return;
-    }
+  router.push("/tanitim");
+  return;
+}
 
     const [campaignsResponse, profilesResponse] = await Promise.all([
       supabase
@@ -364,7 +364,7 @@ export default function Home() {
                 <div>
 
                   <DashboardActionCenter />
-                  
+
                   <h2 className="text-2xl font-bold">Son Kampanyalar</h2>
                   <p className="mt-1 text-sm text-slate-400">
                     Supabase’den gelen en güncel aktif kampanyalar
