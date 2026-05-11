@@ -177,6 +177,11 @@ export default function LoginPage() {
 
             <div className="mt-6 rounded-2xl border border-white/10 bg-slate-950/60 p-4 text-sm text-slate-400">
               Hesabın yok mu?{" "}
+              <div className="mt-4 text-center text-sm">
+  <Link href="/tanitim" className="font-semibold text-slate-400 hover:text-cyan-200">
+    Tanıtım sayfasına dön
+  </Link>
+</div>
               <Link
                 href="/auth/sign-up"
                 className="font-bold text-cyan-200 hover:text-cyan-100"
