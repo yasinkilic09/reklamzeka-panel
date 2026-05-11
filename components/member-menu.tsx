@@ -83,7 +83,7 @@ export function MemberMenu() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 z-[9999] mt-3 w-80 rounded-3xl border border-white/10 bg-[#0B1220]/95 p-4 shadow-2xl shadow-black/40 backdrop-blur-2xl">
+        <div className="absolute right-0 z-[9999] mt-3 w-[min(20rem,calc(100vw-2rem))] rounded-3xl border border-white/10 bg-[#0B1220]/95 p-4 shadow-2xl shadow-black/40 backdrop-blur-2xl">
           <div className="flex items-start gap-4">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 via-blue-500 to-purple-600 text-base font-black text-white shadow-lg shadow-cyan-500/20">
               {initials || "AM"}
