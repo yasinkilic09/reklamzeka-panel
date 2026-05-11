@@ -50,6 +50,23 @@ const contentTones = [
   "Satış odaklı",
 ];
 
+function escapeHtml(value: string) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function formatOutputForPdf(value: string) {
+  return escapeHtml(value)
+    .replace(/^# (.*)$/gm, "<h1>$1</h1>")
+    .replace(/^## (.*)$/gm, "<h2>$1</h2>")
+    .replace(/^---$/gm, "<hr />")
+    .replace(/\n/g, "<br />");
+}
+
 export default function AdPackagePage() {
   const router = useRouter();
   const supabase = createClient();
@@ -525,6 +542,313 @@ Bu reklam paketi doğrudan sosyal medya paylaşımı, story akışı, reels çek
     }
   }
 
+  function downloadPdfReport() {
+  if (!generatedOutput) {
+    alert("Önce reklam paketi oluşturmalısın.");
+    return;
+  }
+
+  const reportDate = new Intl.DateTimeFormat("tr-TR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date());
+
+  const safeBusinessName = escapeHtml(businessName || "AdMind-Ai Reklam Paketi");
+  const safeSector = escapeHtml(sector || selectedSectorLabel);
+  const safeCity = escapeHtml(city || "Belirtilmedi");
+  const safeGoal = escapeHtml(campaignGoal || "Belirtilmedi");
+  const safePlatform = escapeHtml(platform || "Belirtilmedi");
+  const safePackageLevel = escapeHtml(packageLevel || "Belirtilmedi");
+  const safeOutput = formatOutputForPdf(generatedOutput);
+
+  const reportHtml = `
+    <!doctype html>
+    <html lang="tr">
+      <head>
+        <meta charset="utf-8" />
+        <title>${safeBusinessName} Reklam Raporu</title>
+        <style>
+          @page {
+            size: A4;
+            margin: 16mm;
+          }
+
+          * {
+            box-sizing: border-box;
+          }
+
+          body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #0f172a;
+            background: #ffffff;
+          }
+
+          .cover {
+            border: 1px solid #dbeafe;
+            border-radius: 24px;
+            padding: 28px;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, #eff6ff, #f5f3ff);
+          }
+
+          .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 28px;
+          }
+
+          .logo {
+            width: 54px;
+            height: 54px;
+            border-radius: 18px;
+            object-fit: cover;
+          }
+
+          .brand-title {
+            font-size: 22px;
+            font-weight: 900;
+            margin: 0;
+          }
+
+          .brand-subtitle {
+            font-size: 12px;
+            color: #64748b;
+            margin: 4px 0 0;
+          }
+
+          .badge {
+            display: inline-block;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: #dbeafe;
+            color: #1d4ed8;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-bottom: 18px;
+          }
+
+          h1 {
+            font-size: 34px;
+            line-height: 1.15;
+            margin: 0 0 14px;
+            letter-spacing: -0.03em;
+          }
+
+          .description {
+            font-size: 14px;
+            line-height: 1.8;
+            color: #475569;
+            max-width: 680px;
+            margin: 0;
+          }
+
+          .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 24px;
+          }
+
+          .meta-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 14px;
+            background: #ffffff;
+          }
+
+          .meta-label {
+            font-size: 10px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            margin: 0 0 6px;
+          }
+
+          .meta-value {
+            font-size: 14px;
+            font-weight: 800;
+            margin: 0;
+          }
+
+          .content {
+            margin-top: 20px;
+            padding: 8px 0;
+          }
+
+          .content h1 {
+            font-size: 26px;
+            margin: 24px 0 12px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #dbeafe;
+          }
+
+          .content h2 {
+            font-size: 19px;
+            margin: 22px 0 10px;
+            color: #1d4ed8;
+          }
+
+          .content p,
+          .content div {
+            font-size: 13px;
+            line-height: 1.75;
+          }
+
+          hr {
+            border: 0;
+            border-top: 1px solid #e2e8f0;
+            margin: 20px 0;
+          }
+
+          .footer {
+            margin-top: 28px;
+            padding-top: 16px;
+            border-top: 1px solid #e2e8f0;
+            font-size: 11px;
+            color: #64748b;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+          }
+
+          .no-print {
+            position: sticky;
+            top: 0;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            padding: 12px;
+            background: #0f172a;
+            z-index: 999;
+          }
+
+          .no-print button {
+            border: 0;
+            border-radius: 12px;
+            padding: 12px 18px;
+            font-weight: 800;
+            cursor: pointer;
+          }
+
+          .print-button {
+            background: #2563eb;
+            color: #ffffff;
+          }
+
+          .close-button {
+            background: #e2e8f0;
+            color: #0f172a;
+          }
+
+          @media print {
+            .no-print {
+              display: none;
+            }
+
+            body {
+              background: #ffffff;
+            }
+
+            .cover {
+              break-inside: avoid;
+            }
+          }
+        </style>
+      </head>
+
+      <body>
+        <div class="no-print">
+          <button class="print-button" onclick="window.print()">PDF Olarak Kaydet / Yazdır</button>
+          <button class="close-button" onclick="window.close()">Kapat</button>
+        </div>
+
+        <section class="cover">
+          <div class="brand">
+            <img class="logo" src="/logo.png" alt="AdMind-Ai Logo" />
+            <div>
+              <p class="brand-title">AdMind-Ai</p>
+              <p class="brand-subtitle">AI Marketing Intelligence</p>
+            </div>
+          </div>
+
+          <span class="badge">Profesyonel Reklam Raporu</span>
+
+          <h1>${safeBusinessName} Reklam Paketi</h1>
+
+          <p class="description">
+            Bu rapor, AdMind-Ai Reklam Paketi Oluşturucu tarafından hazırlanmıştır.
+            Sosyal medya paylaşımı, reklam metni, story akışı, reels senaryosu ve kampanya planlaması için kullanılabilir.
+          </p>
+
+          <div class="meta-grid">
+            <div class="meta-card">
+              <p class="meta-label">İşletme</p>
+              <p class="meta-value">${safeBusinessName}</p>
+            </div>
+
+            <div class="meta-card">
+              <p class="meta-label">Sektör</p>
+              <p class="meta-value">${safeSector}</p>
+            </div>
+
+            <div class="meta-card">
+              <p class="meta-label">Şehir / Bölge</p>
+              <p class="meta-value">${safeCity}</p>
+            </div>
+
+            <div class="meta-card">
+              <p class="meta-label">Platform</p>
+              <p class="meta-value">${safePlatform}</p>
+            </div>
+
+            <div class="meta-card">
+              <p class="meta-label">Kampanya Hedefi</p>
+              <p class="meta-value">${safeGoal}</p>
+            </div>
+
+            <div class="meta-card">
+              <p class="meta-label">Paket Seviyesi</p>
+              <p class="meta-value">${safePackageLevel}</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="content">
+          ${safeOutput}
+        </section>
+
+        <footer class="footer">
+          <span>AdMind-Ai · Reklam Paketi Raporu</span>
+          <span>Oluşturulma: ${reportDate}</span>
+        </footer>
+      </body>
+    </html>
+  `;
+
+  const printWindow = window.open("", "_blank", "width=960,height=720");
+
+  if (!printWindow) {
+    alert("PDF penceresi açılamadı. Tarayıcı pop-up engelini kontrol et.");
+    return;
+  }
+
+  printWindow.document.open();
+  printWindow.document.write(reportHtml);
+  printWindow.document.close();
+
+  setTimeout(() => {
+    printWindow.focus();
+    printWindow.print();
+  }, 500);
+}
+
   async function saveAsCampaign() {
     if (!userId) {
       router.push("/auth/login");
@@ -878,6 +1202,13 @@ Bu reklam paketi doğrudan sosyal medya paylaşımı, story akışı, reels çek
                   </button>
 
                   <button
+  onClick={downloadPdfReport}
+  className="rounded-2xl border border-purple-400/20 bg-purple-400/10 px-4 py-3 text-sm font-semibold text-purple-200 transition hover:bg-purple-400/20"
+>
+  PDF Raporu Oluştur
+</button>
+
+                  <button
                     onClick={saveAsCampaign}
                     disabled={isSaving}
                     className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm font-semibold text-emerald-200 transition hover:bg-emerald-400/20 disabled:cursor-not-allowed disabled:opacity-60"
@@ -986,4 +1317,21 @@ function Hint({ text }: { text: string }) {
       {text}
     </div>
   );
+
+  function escapeHtml(value: string) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function formatOutputForPdf(value: string) {
+  return escapeHtml(value)
+    .replace(/^# (.*)$/gm, "<h1>$1</h1>")
+    .replace(/^## (.*)$/gm, "<h2>$1</h2>")
+    .replace(/^---$/gm, "<hr />")
+    .replace(/\n/g, "<br />");
+}
 }
