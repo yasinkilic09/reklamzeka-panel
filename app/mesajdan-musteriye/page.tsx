@@ -45,6 +45,137 @@ const responseTones = [
   "Sakin ve çözüm odaklı",
 ];
 
+type AutomationProfile = {
+  status: string;
+  mode: string;
+  riskLabel: string;
+  score: number;
+  summary: string;
+  recommendation: string;
+  autoAllowed: boolean;
+  approvalRequired: boolean;
+  badgeClass: string;
+  progressClass: string;
+  checklist: {
+    title: string;
+    description: string;
+    ok: boolean;
+  }[];
+};
+
+function getAutomationProfile(
+  messageType: string,
+  channel: string
+): AutomationProfile {
+  const isComplaint = messageType === "Olumsuz yorum / şikayet";
+  const isUndecided = messageType === "Kararsız müşteri";
+  const isPublicComment =
+    channel === "Instagram Yorum" || channel === "TikTok Yorum";
+
+  if (isComplaint) {
+    return {
+      status: "İnsan Onayı Gerekli",
+      mode: "Manuel kontrol + önerilen cevap",
+      riskLabel: "Yüksek dikkat",
+      score: 35,
+      summary:
+        "Şikayet ve olumsuz yorumlarda otomatik cevap verilmemeli. Sistem yalnızca güvenli cevap önerisi üretmeli.",
+      recommendation:
+        "Bu mesaj türü için işletme sahibi cevabı kontrol etmeli, gerekirse müşteriyi özel mesaja yönlendirmeli.",
+      autoAllowed: false,
+      approvalRequired: true,
+      badgeClass:
+        "border-red-400/20 bg-red-400/10 text-red-200",
+      progressClass: "bg-gradient-to-r from-red-500 to-orange-500",
+      checklist: [
+        {
+          title: "Otomatik gönderim kapalı olmalı",
+          description: "Kriz, şikayet veya memnuniyetsizlik içeren mesajlarda güvenli yaklaşım gerekir.",
+          ok: true,
+        },
+        {
+          title: "İşletme sahibi onayı gerekir",
+          description: "Yanlış veya savunmacı bir cevap marka algısına zarar verebilir.",
+          ok: true,
+        },
+        {
+          title: "Özel mesaja yönlendirme önerilir",
+          description: "Sorun kamuya açık alanda tartışılmadan çözüm sürecine alınır.",
+          ok: true,
+        },
+      ],
+    };
+  }
+
+  if (isUndecided || isPublicComment) {
+    return {
+      status: "Yarı Otomatik Uygun",
+      mode: "Cevap önerisi + tek tık onay",
+      riskLabel: "Orta risk",
+      score: 68,
+      summary:
+        "Bu mesajlarda otomatik taslak üretilebilir fakat gönderim öncesi kullanıcı onayı daha güvenlidir.",
+      recommendation:
+        "Sistem cevabı hazırlasın, işletme sahibi onayladıktan sonra gönderim yapılsın.",
+      autoAllowed: false,
+      approvalRequired: true,
+      badgeClass:
+        "border-yellow-400/20 bg-yellow-400/10 text-yellow-200",
+      progressClass: "bg-gradient-to-r from-yellow-400 to-orange-500",
+      checklist: [
+        {
+          title: "Cevap taslağı otomatik üretilebilir",
+          description: "Kullanıcıya hızlı öneri sunulur.",
+          ok: true,
+        },
+        {
+          title: "Gönderim öncesi onay önerilir",
+          description: "Kararsız müşteri veya herkese açık yorumlarda ton kontrolü önemlidir.",
+          ok: true,
+        },
+        {
+          title: "DM / WhatsApp yönlendirmesi kullanılabilir",
+          description: "Konuşma daha satış odaklı özel kanala taşınabilir.",
+          ok: true,
+        },
+      ],
+    };
+  }
+
+  return {
+    status: "Otomasyona Uygun",
+    mode: "Kurala bağlı otomatik cevap adayı",
+    riskLabel: "Düşük risk",
+    score: 88,
+    summary:
+      "Fiyat, konum, randevu ve genel bilgi gibi düşük riskli mesajlarda kontrollü otomatik cevap akışı kullanılabilir.",
+    recommendation:
+      "İlk cevap otomatik gönderilebilir; detay, fiyat, rezervasyon veya özel durumlarda kullanıcı onayına geçilebilir.",
+    autoAllowed: true,
+    approvalRequired: false,
+    badgeClass:
+      "border-emerald-400/20 bg-emerald-400/10 text-emerald-200",
+    progressClass: "bg-gradient-to-r from-emerald-400 to-cyan-500",
+    checklist: [
+      {
+        title: "Otomatik ilk cevap uygun",
+        description: "Müşteri bekletilmeden hızlı karşılama mesajı alabilir.",
+        ok: true,
+      },
+      {
+        title: "Detay sorusu ile konuşma ilerletilebilir",
+        description: "Kişi sayısı, tarih, hizmet türü veya ihtiyaç bilgisi alınabilir.",
+        ok: true,
+      },
+      {
+        title: "Satış / randevu akışına bağlanabilir",
+        description: "Müşteri DM veya WhatsApp üzerinden aksiyona yönlendirilir.",
+        ok: true,
+      },
+    ],
+  };
+}
+
 export default function MessageToCustomerPage() {
   const router = useRouter();
   const supabase = createClient();
@@ -79,6 +210,10 @@ export default function MessageToCustomerPage() {
   const whatsappLink = useMemo(() => {
     if (!phone.trim() || !generatedOutput) return "";
 
+    const automationProfile = useMemo(() => {
+  return getAutomationProfile(messageType, channel);
+}, [messageType, channel]);
+
     const cleanPhone = phone.replace(/[^0-9]/g, "");
     if (!cleanPhone) return "";
 
@@ -88,6 +223,10 @@ export default function MessageToCustomerPage() {
 
     return `https://wa.me/${cleanPhone}?text=${message}`;
   }, [phone, generatedOutput, businessName]);
+
+  const automationProfile = useMemo(() => {
+  return getAutomationProfile(messageType, channel);
+}, [messageType, channel]);
 
   async function loadUserAndProfiles() {
     setIsLoading(true);
@@ -697,6 +836,12 @@ Bu cevaplar otomatik gönderimden önce kontrol edilmelidir. Özellikle fiyat, �
                 </div>
               )}
             </section>
+
+            <AutomationPreparationPanel
+  profile={automationProfile}
+  channel={channel}
+  messageType={messageType}
+/>
           </div>
         )}
       </div>
@@ -789,6 +934,197 @@ function Hint({ text }: { text: string }) {
   return (
     <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4 text-sm leading-6 text-slate-400">
       {text}
+    </div>
+  );
+}
+
+function AutomationPreparationPanel({
+  profile,
+  channel,
+  messageType,
+}: {
+  profile: AutomationProfile;
+  channel: string;
+  messageType: string;
+}) {
+  return (
+    <section className="xl:col-span-2 rounded-[2rem] border border-white/10 bg-white/[0.055] p-6 shadow-2xl shadow-black/20 backdrop-blur-xl">
+      <div className="mb-7 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-purple-300">
+            Otomasyon Hazırlık Paneli
+          </p>
+
+          <h2 className="mt-3 text-3xl font-black tracking-tight">
+            Bu mesaj otomatik cevaplanabilir mi?
+          </h2>
+
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-400">
+            Bu alan gerçek sosyal medya entegrasyonu öncesi karar motoru gibi
+            çalışır. Mesaj türüne ve kanala göre otomatik cevap, onaylı gönderim
+            veya insan kontrolü önerir.
+          </p>
+        </div>
+
+        <span
+          className={`w-fit rounded-full border px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] ${profile.badgeClass}`}
+        >
+          {profile.status}
+        </span>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
+        <div className="rounded-[1.5rem] border border-white/10 bg-slate-950/70 p-5">
+          <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
+            Otomasyon Uygunluk Skoru
+          </p>
+
+          <div className="mt-4 flex items-end justify-between gap-4">
+            <p className="text-5xl font-black text-white">
+              {profile.score}
+              <span className="text-xl text-slate-500">/100</span>
+            </p>
+
+            <p className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300">
+              {profile.riskLabel}
+            </p>
+          </div>
+
+          <div className="mt-5 h-3 overflow-hidden rounded-full bg-slate-900">
+            <div
+              className={`h-full rounded-full ${profile.progressClass}`}
+              style={{ width: `${profile.score}%` }}
+            />
+          </div>
+
+          <div className="mt-6 grid gap-4">
+            <InfoBox label="Kanal" value={channel} />
+            <InfoBox label="Mesaj Türü" value={messageType} />
+            <InfoBox label="Önerilen Mod" value={profile.mode} />
+          </div>
+        </div>
+
+        <div className="grid gap-5">
+          <div className="rounded-[1.5rem] border border-white/10 bg-slate-950/70 p-5">
+            <h3 className="text-xl font-black text-white">Sistem Kararı</h3>
+
+            <p className="mt-3 text-sm leading-7 text-slate-400">
+              {profile.summary}
+            </p>
+
+            <div className="mt-5 rounded-2xl border border-cyan-400/20 bg-cyan-400/10 p-4">
+              <p className="text-sm font-bold text-cyan-200">Öneri</p>
+              <p className="mt-2 text-sm leading-7 text-slate-300">
+                {profile.recommendation}
+              </p>
+            </div>
+          </div>
+
+          <div className="grid gap-3">
+            {profile.checklist.map((item) => (
+              <div
+                key={item.title}
+                className="rounded-2xl border border-white/10 bg-slate-950/70 p-4"
+              >
+                <div className="flex gap-3">
+                  <div className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-400 text-xs font-black text-slate-950">
+                    ✓
+                  </div>
+
+                  <div>
+                    <p className="text-sm font-bold text-white">
+                      {item.title}
+                    </p>
+                    <p className="mt-1 text-xs leading-5 text-slate-400">
+                      {item.description}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+        <AutomationStep
+          number="1"
+          title="Mesajı Al"
+          description="Instagram, WhatsApp veya yorum kanalı mesajı sisteme düşer."
+        />
+
+        <AutomationStep
+          number="2"
+          title="Sınıflandır"
+          description="Mesaj fiyat, konum, randevu, şikayet veya genel bilgi olarak ayrılır."
+        />
+
+        <AutomationStep
+          number="3"
+          title="Cevap Üret"
+          description="İşletme profiline göre uygun cevap akışı hazırlanır."
+        />
+
+        <AutomationStep
+          number="4"
+          title={
+            profile.autoAllowed
+              ? "Otomatik / Onaylı Gönder"
+              : "Onayla ve Gönder"
+          }
+          description={
+            profile.autoAllowed
+              ? "Düşük riskli mesajlarda otomatik cevap, diğerlerinde onaylı gönderim uygulanır."
+              : "Riskli mesajlarda işletme sahibinin kontrolü olmadan gönderim yapılmaz."
+          }
+        />
+      </div>
+
+      <div className="mt-6 rounded-[1.5rem] border border-purple-400/20 bg-purple-400/10 p-5">
+        <p className="text-sm font-black text-purple-200">
+          Gelecek Entegrasyon Notu
+        </p>
+
+        <p className="mt-3 text-sm leading-7 text-slate-300">
+          Bu panel şu an otomatik gönderim yapmaz. İleride resmi Instagram /
+          WhatsApp entegrasyonu eklendiğinde bu karar mantığı; otomatik cevap,
+          onaylı cevap ve insan müdahalesi gerektiren mesajları ayırmak için
+          kullanılabilir.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+function InfoBox({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-4">
+      <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
+        {label}
+      </p>
+      <p className="mt-2 text-sm font-bold text-slate-200">{value}</p>
+    </div>
+  );
+}
+
+function AutomationStep({
+  number,
+  title,
+  description,
+}: {
+  number: string;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="rounded-[1.5rem] border border-white/10 bg-slate-950/70 p-5">
+      <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 to-purple-500 text-sm font-black text-white">
+        {number}
+      </div>
+
+      <h3 className="text-base font-black text-white">{title}</h3>
+
+      <p className="mt-3 text-sm leading-6 text-slate-400">{description}</p>
     </div>
   );
 }

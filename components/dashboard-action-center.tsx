@@ -272,6 +272,14 @@ export function DashboardActionCenter() {
         />
 
         <ActionCard
+          title="Mesajdan Müşteriye"
+          description="DM, yorum ve WhatsApp mesajları için cevap akışı oluştur."
+          href="/mesajdan-musteriye"
+          icon="💬"
+          tag="Yeni"
+/>
+
+        <ActionCard
           title="İşletme Profilleri"
           description="Marka bilgilerini düzenle, kampanya çıktısını güçlendir."
           href="/isletme-profilleri"
