@@ -96,6 +96,12 @@ const menuItems = [
   active: false,
   icon: "🎯",
 },
+{
+  title: "Kampanya Karnesi",
+  href: "/kampanya-karnesi",
+  active: false,
+  icon: "📊",
+},
 ];
 
 function mapCampaign(row: SupabaseCampaign): SavedCampaign {

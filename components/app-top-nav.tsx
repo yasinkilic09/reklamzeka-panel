@@ -12,6 +12,7 @@ const navItems = [
   { title: "Reklam Paketi", href: "/reklam-paketi" },
   { title: "Mesaj → Müşteri", href: "/mesajdan-musteriye" },
   { title: "Fırsat Takibi", href: "/firsat-takibi" },
+  { title: "Kampanya Karnesi", href: "/kampanya-karnesi" },
   { title: "İşletme Profilleri", href: "/isletme-profilleri" },
   { title: "Geçmiş Kampanyalar", href: "/gecmis-kampanyalar" },
   { title: "Arşiv", href: "/arsivlenen-kampanyalar" },
