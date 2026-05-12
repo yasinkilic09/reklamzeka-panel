@@ -5,7 +5,15 @@ import { useRouter } from "next/navigation";
 import { DashboardActionCenter } from "@/components/dashboard-action-center";
 import Image from "next/image";
 import { ProductFlowMap } from "@/components/product-flow-map";
+import { AIBackground } from "@/components/ai-background";
 import { createClient } from "@/lib/supabase/client";
+import { AIOrb } from "@/components/ai-orb";
+import { Dancing_Script } from "next/font/google";
+
+const handwritingFont = Dancing_Script({
+  subsets: ["latin-ext"],
+  weight: ["700"],
+});
 
 type SavedCampaign = {
   id: string;
@@ -241,14 +249,10 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#070A12] text-white">
-      <div className="pointer-events-none fixed inset-0">
-        <div className="absolute left-[-10%] top-[-10%] h-[420px] w-[420px] rounded-full bg-blue-600/25 blur-[120px]" />
-        <div className="absolute right-[-8%] top-[20%] h-[420px] w-[420px] rounded-full bg-purple-600/20 blur-[130px]" />
-        <div className="absolute bottom-[-20%] left-[35%] h-[420px] w-[420px] rounded-full bg-cyan-500/10 blur-[130px]" />
-      </div>
+    <main className="relative min-h-screen overflow-hidden bg-[#050712] text-white">
+  <AIBackground />
 
-      <div className="relative flex min-h-screen">
+       <div className="relative z-10 flex min-h-screen">
         <aside className="hidden w-80 border-r border-white/10 bg-white/[0.035] p-6 backdrop-blur-2xl lg:block">
           <div className="mb-10">
             <div className="flex items-center gap-3">
@@ -327,43 +331,93 @@ export default function Home() {
         </aside>
 
         <section className="flex-1 px-5 py-6 lg:px-10 lg:py-8">
-          <header className="mb-8 flex flex-col justify-between gap-5 rounded-[2rem] border border-white/10 bg-white/[0.055] p-5 shadow-2xl shadow-black/30 backdrop-blur-2xl lg:flex-row lg:items-center">
-            <div>
-              <p className="mb-2 inline-flex rounded-full border border-blue-300/20 bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-200">
-                Supabase bağlantılı canlı MVP
-              </p>
-              <h1 className="mt-3 text-3xl font-bold tracking-tight lg:text-5xl">
-                Reklam kararlarını veriye ve yapay zekâya taşı.
-              </h1>
-              <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300 lg:text-base">
-                İşletme profilini kaydet, kampanya amacını belirle ve yapay zekâ
-                destekli reklam stratejisi, hedef kitle önerisi, bütçe dağılımı
-                ve içerik fikri oluştur.
-              </p>
-            </div>
+          <header className="mb-8 overflow-hidden rounded-[2rem] border border-cyan-300/10 bg-white/[0.06] p-5 shadow-2xl shadow-cyan-950/40 backdrop-blur-2xl lg:p-8">
+  <div className="relative">
+    <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-cyan-400/10 blur-[90px]" />
+    <div className="pointer-events-none absolute -bottom-24 left-1/3 h-72 w-72 rounded-full bg-purple-500/10 blur-[90px]" />
 
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <a
-                href="/isletme-profilleri"
-                className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-center text-sm font-semibold text-slate-200 transition hover:bg-white/10"
-              >
-                İşletme Ekle
-              </a>
+    <div className="relative flex flex-col justify-between gap-8 lg:flex-row lg:items-start">
+      <div>
+        <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-cyan-200">
+          <span className="h-2 w-2 rounded-full bg-emerald-300 shadow-[0_0_16px_rgba(110,231,183,0.9)]" />
+          AI Marketing Intelligence Aktif
+        </div>
 
-              <a
-                href="/kampanya-olustur"
-                className="rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4 text-center text-sm font-semibold shadow-lg shadow-blue-600/30 transition hover:scale-[1.02]"
-              >
-                Yeni Kampanya Oluştur
-              </a>
-            </div>
-          </header>
+        <h1 className="max-w-6xl text-3xl font-black tracking-tight text-white lg:text-6xl">
+  <span className="block leading-[1.02]">
+    Reklamdan müşteriye giden süreci
+  </span>
+
+  <span className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+    <span
+      className={`${handwritingFont.className} inline-block bg-gradient-to-r from-cyan-300 via-blue-300 to-purple-300 bg-clip-text pb-2 pt-1 text-5xl leading-[1.18] tracking-normal text-transparent drop-shadow-[0_0_24px_rgba(103,232,249,0.32)] lg:text-7xl`}
+    >
+      yapay zekâ
+    </span>
+
+    <span className="inline-block pb-2 text-3xl font-black leading-[1.05] text-white lg:text-6xl">
+      ile yönet
+    </span>
+  </span>
+</h1>
+
+<p className="mt-5 max-w-5xl text-sm leading-7 text-slate-300 lg:text-base">
+  AdMind-Ai; reklam paketi üretimi, kampanyaya uygun görsel brief hazırlama,
+  müşteri mesajlarını satış fırsatına dönüştürme, fırsat takibi ve kampanya
+  performans analizini tek bir akıllı panelde birleştirir.
+</p>
+
+        <div className="mt-6 flex max-w-5xl flex-wrap gap-3 text-xs text-slate-400">
+          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-2">
+            Reklam Üretimi
+          </span>
+          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-2">
+            Görsel Stüdyosu
+          </span>
+          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-2">
+            Müşteri Dönüşümü
+          </span>
+          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-2">
+            Performans Analizi
+          </span>
+        </div>
+      </div>
+
+      
+
+      <div className="flex min-w-full flex-col gap-4 sm:min-w-[320px] lg:max-w-[400px]">
+  <AIOrb />
+
+  <a
+    href="/reklam-paketi"
+    className="rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 px-6 py-4 text-center text-sm font-black text-white shadow-lg shadow-cyan-600/25 transition hover:scale-[1.02]"
+  >
+    Reklam Paketi Oluştur
+  </a>
+
+  <a
+    href="/gorsel-studyosu"
+    className="rounded-2xl border border-purple-300/20 bg-purple-500/10 px-6 py-4 text-center text-sm font-bold text-purple-100 transition hover:bg-purple-500/20"
+  >
+    Görsel Stüdyosuna Git
+  </a>
+
+  <a
+    href="/isletme-profilleri"
+    className="rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-center text-sm font-semibold text-slate-200 transition hover:bg-white/10"
+  >
+    İşletme Ekle
+  </a>
+</div>
+    </div>
+  </div>
+</header>
 
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
             {stats.map((item) => (
               <div
                 key={item.title}
-                className="group rounded-[1.75rem] border border-white/10 bg-white/[0.055] p-6 shadow-xl shadow-black/20 backdrop-blur-xl transition hover:-translate-y-1 hover:bg-white/[0.075]"
+                className="group rounded-[1.75rem] border border-white/10 bg-white/[0.06] p-6 shadow-xl shadow-black/20 backdrop-blur-xl transition hover:-translate-y-1 hover:border-cyan-300/30 hover:bg-white/[0.085] hover:shadow-cyan-950/30"
               >
                 <div className="mb-5 flex items-center justify-between gap-4">
                   <p className="text-sm text-slate-400">{item.title}</p>
