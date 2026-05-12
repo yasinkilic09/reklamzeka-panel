@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { DashboardActionCenter } from "@/components/dashboard-action-center";
 import Image from "next/image";
+import { ProductFlowMap } from "@/components/product-flow-map";
 import { createClient } from "@/lib/supabase/client";
 
 type SavedCampaign = {
@@ -382,6 +383,8 @@ export default function Home() {
                 <div>
 
                   <DashboardActionCenter />
+
+                  <ProductFlowMap />
 
                   <h2 className="text-2xl font-bold">Son Kampanyalar</h2>
                   <p className="mt-1 text-sm text-slate-400">
