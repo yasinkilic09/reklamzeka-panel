@@ -86,6 +86,12 @@ const menuItems = [
   icon: "✺",
   },
   {
+  title: "Görsel Stüdyo",
+  href: "/gorsel-studyosu",
+  active: false,
+  icon: "🖼️",
+  },
+  {
   title: "Mesajdan Müşteriye",
   href: "/mesajdan-musteriye",
   active: false,

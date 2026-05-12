@@ -10,6 +10,7 @@ const navItems = [
   { title: "Dashboard", href: "/" },
   { title: "Kampanya Oluştur", href: "/kampanya-olustur" },
   { title: "Reklam Paketi", href: "/reklam-paketi" },
+  { title: "Görsel Stüdyo", href: "/gorsel-studyosu" },
   { title: "Mesaj → Müşteri", href: "/mesajdan-musteriye" },
   { title: "Fırsat Takibi", href: "/firsat-takibi" },
   { title: "Kampanya Karnesi", href: "/kampanya-karnesi" },
