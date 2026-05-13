@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppTopNav } from "@/components/app-top-nav";
 import { createClient } from "@/lib/supabase/client";
+import { CustomerConversionRadar } from "@/components/customer-conversion-radar";
 
 type BusinessProfile = {
   id: string;
@@ -884,7 +885,7 @@ async function saveAsLead() {
 
                 <div className="grid gap-5 md:grid-cols-2">
                   <InputField
-                    label="Telefon / WhatsApp"
+                    label="İşletme Telefon / WhatsApp"
                     value={phone}
                     onChange={setPhone}
                     placeholder="Örn: 905xxxxxxxxx"
@@ -985,6 +986,14 @@ async function saveAsLead() {
                 </div>
               )}
             </section>
+
+<CustomerConversionRadar
+  messageType={messageType}
+  channel={channel}
+  customerName={customerName}
+  customerContact={customerContact}
+  customerMessage={customerMessage}
+/>
 
             <AutomationPreparationPanel
   profile={automationProfile}
