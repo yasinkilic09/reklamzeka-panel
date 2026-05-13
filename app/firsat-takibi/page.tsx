@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AppTopNav } from "@/components/app-top-nav";
 import { createClient } from "@/lib/supabase/client";
+import { LeadPipelineBoard } from "@/components/lead-pipeline-board";
 
 type CustomerLead = {
   id: string;
@@ -184,6 +185,8 @@ export default function OpportunityTrackingPage() {
           <StatCard label="Sıcak Fırsat" value={stats.hot} />
           <StatCard label="Kazanılan" value={stats.won} />
         </section>
+
+        <LeadPipelineBoard leads={leads} />
 
         <section className="mb-8 rounded-[2rem] border border-white/10 bg-white/[0.055] p-5 shadow-2xl shadow-black/20 backdrop-blur-xl">
           <div className="flex flex-wrap gap-3">
