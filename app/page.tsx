@@ -330,7 +330,50 @@ export default function Home() {
           </div>
         </aside>
 
-        <section className="flex-1 px-5 py-6 lg:px-10 lg:py-8">
+        <section className="flex-1 px-4 py-4 sm:px-5 sm:py-6 lg:px-10 lg:py-8">
+          <div className="sticky top-3 z-40 mb-5 overflow-hidden rounded-[1.5rem] border border-white/10 bg-slate-950/80 p-4 shadow-2xl shadow-black/30 backdrop-blur-2xl lg:hidden">
+  <div className="flex items-center justify-between gap-3">
+    <div className="flex items-center gap-3">
+      <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-cyan-300/20 bg-cyan-300/10 text-sm font-black text-cyan-200 shadow-lg shadow-cyan-950/40">
+        AM
+      </div>
+
+      <div>
+        <p className="bg-gradient-to-r from-white via-cyan-200 to-blue-300 bg-clip-text text-base font-black text-transparent">
+          AdMind-Ai
+        </p>
+        <p className="text-[10px] uppercase tracking-[0.22em] text-cyan-200/60">
+          AI Panel
+        </p>
+      </div>
+    </div>
+
+    <a
+      href="/hesap"
+      className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-bold text-slate-200"
+    >
+      Hesap
+    </a>
+  </div>
+
+  <nav className="mt-4 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <a href="/reklam-paketi" className="shrink-0 rounded-xl border border-cyan-300/20 bg-cyan-300/10 px-3 py-2 text-xs font-bold text-cyan-100">
+      Reklam Paketi
+    </a>
+    <a href="/gorsel-studyosu" className="shrink-0 rounded-xl border border-purple-300/20 bg-purple-300/10 px-3 py-2 text-xs font-bold text-purple-100">
+      Görsel
+    </a>
+    <a href="/mesajdan-musteriye" className="shrink-0 rounded-xl border border-emerald-300/20 bg-emerald-300/10 px-3 py-2 text-xs font-bold text-emerald-100">
+      Mesaj
+    </a>
+    <a href="/firsat-takibi" className="shrink-0 rounded-xl border border-orange-300/20 bg-orange-300/10 px-3 py-2 text-xs font-bold text-orange-100">
+      Fırsat
+    </a>
+    <a href="/kampanya-karnesi" className="shrink-0 rounded-xl border border-blue-300/20 bg-blue-300/10 px-3 py-2 text-xs font-bold text-blue-100">
+      Karne
+    </a>
+  </nav>
+</div>
           <header className="mb-8 overflow-hidden rounded-[2rem] border border-cyan-300/10 bg-white/[0.06] p-5 shadow-2xl shadow-cyan-950/40 backdrop-blur-2xl lg:p-8">
   <div className="relative">
     <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-cyan-400/10 blur-[90px]" />
@@ -343,25 +386,25 @@ export default function Home() {
           AI Marketing Intelligence Aktif
         </div>
 
-        <h1 className="max-w-6xl text-3xl font-black tracking-tight text-white lg:text-6xl">
-  <span className="block leading-[1.02]">
+        <h1 className="max-w-6xl text-[2.1rem] font-black leading-[1.02] tracking-tight text-white sm:text-5xl lg:text-6xl">
+  <span className="block">
     Reklamdan müşteriye giden süreci
   </span>
 
-  <span className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+  <span className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 sm:mt-4 sm:gap-x-4">
     <span
-      className={`${handwritingFont.className} inline-block bg-gradient-to-r from-cyan-300 via-blue-300 to-purple-300 bg-clip-text pb-2 pt-1 text-5xl leading-[1.18] tracking-normal text-transparent drop-shadow-[0_0_24px_rgba(103,232,249,0.32)] lg:text-7xl`}
+      className={`${handwritingFont.className} inline-block bg-gradient-to-r from-cyan-300 via-blue-300 to-purple-300 bg-clip-text pb-2 pt-1 text-[2.9rem] leading-[1.18] tracking-normal text-transparent drop-shadow-[0_0_24px_rgba(103,232,249,0.32)] sm:text-5xl lg:text-7xl`}
     >
       yapay zekâ
     </span>
 
-    <span className="inline-block pb-2 text-3xl font-black leading-[1.05] text-white lg:text-6xl">
+    <span className="inline-block pb-2 text-[2.1rem] font-black leading-[1.05] text-white sm:text-5xl lg:text-6xl">
       ile yönet
     </span>
   </span>
 </h1>
 
-<p className="mt-5 max-w-5xl text-sm leading-7 text-slate-300 lg:text-base">
+<p className="mt-4 max-w-5xl text-sm leading-7 text-slate-300 sm:mt-5 lg:text-base">
   AdMind-Ai; reklam paketi üretimi, kampanyaya uygun görsel brief hazırlama,
   müşteri mesajlarını satış fırsatına dönüştürme, fırsat takibi ve kampanya
   performans analizini tek bir akıllı panelde birleştirir.
@@ -385,7 +428,7 @@ export default function Home() {
 
       
 
-      <div className="flex min-w-full flex-col gap-4 sm:min-w-[320px] lg:max-w-[400px]">
+      <div className="flex w-full flex-col gap-3 sm:gap-4 lg:w-[380px] lg:shrink-0">
   <AIOrb />
 
   <a

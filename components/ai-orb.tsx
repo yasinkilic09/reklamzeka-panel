@@ -1,6 +1,6 @@
 export function AIOrb() {
   return (
-    <div className="relative overflow-hidden rounded-[2rem] border border-cyan-300/10 bg-white/[0.045] p-5 shadow-2xl shadow-cyan-950/30 backdrop-blur-2xl">
+    <div className="relative overflow-hidden rounded-[1.5rem] border border-cyan-300/10 bg-white/[0.045] p-4 shadow-2xl shadow-cyan-950/30 backdrop-blur-2xl sm:rounded-[2rem] sm:p-5">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(34,211,238,0.16),transparent_42%),radial-gradient(circle_at_top_right,rgba(168,85,247,0.12),transparent_35%)]" />
       <div className="pointer-events-none absolute left-0 top-0 h-px w-full animate-pulse bg-gradient-to-r from-transparent via-cyan-300/70 to-transparent" />
 
@@ -30,7 +30,7 @@ export function AIOrb() {
       </div>
 
       <div className="relative flex items-center justify-center py-4">
-        <div className="relative h-44 w-44 sm:h-52 sm:w-52">
+        <div className="relative h-36 w-36 sm:h-48 sm:w-48 lg:h-52 lg:w-52">
           <div className="absolute inset-0 animate-pulse rounded-full bg-cyan-400/10 blur-2xl" />
 
           <div className="absolute inset-0 animate-[spin_20s_linear_infinite] rounded-full border border-cyan-300/20">
