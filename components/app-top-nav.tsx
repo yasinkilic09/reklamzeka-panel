@@ -134,7 +134,7 @@ export function AppTopNav() {
                       : "bg-white/[0.035] text-slate-300 hover:bg-white/10 hover:text-white"
                   }`}
                 >
-                  {item.title}
+                  {item.label}
                 </Link>
               );
             })}
