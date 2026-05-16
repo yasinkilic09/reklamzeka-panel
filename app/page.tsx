@@ -379,6 +379,7 @@ export default function Home() {
     </a>
   </nav>
 </div>
+{/* MOBİL HEADER BAŞLANGIÇ */}
 <header className="mb-6 w-full max-w-full overflow-hidden rounded-[1.5rem] border border-cyan-300/10 bg-white/[0.06] p-4 shadow-2xl shadow-cyan-950/30 backdrop-blur-2xl md:hidden">
   <div className="mb-4 inline-flex max-w-full items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-400/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-200">
     <span className="relative flex h-2 w-2 shrink-0">
@@ -472,6 +473,90 @@ export default function Home() {
     </div>
   </div>
 </header>
+{/* MOBİL HEADER BİTİŞ */}
+<section className="space-y-4 pb-36 md:hidden">
+  <div className="grid grid-cols-2 gap-3">
+    <a
+      href="/reklam-paketi"
+      className="rounded-[1.4rem] border border-cyan-300/15 bg-cyan-300/[0.07] p-4 shadow-xl shadow-black/20"
+    >
+      <p className="text-2xl">✨</p>
+      <p className="mt-3 text-sm font-black text-white">Reklam Paketi</p>
+      <p className="mt-1 text-xs leading-5 text-slate-400">
+        Yeni kampanya üret
+      </p>
+    </a>
+
+    <a
+      href="/gorsel-studyosu"
+      className="rounded-[1.4rem] border border-purple-300/15 bg-purple-300/[0.07] p-4 shadow-xl shadow-black/20"
+    >
+      <p className="text-2xl">🖼️</p>
+      <p className="mt-3 text-sm font-black text-white">Görsel Stüdyo</p>
+      <p className="mt-1 text-xs leading-5 text-slate-400">
+        Brief ve prompt üret
+      </p>
+    </a>
+
+    <a
+      href="/mesajdan-musteriye"
+      className="rounded-[1.4rem] border border-emerald-300/15 bg-emerald-300/[0.07] p-4 shadow-xl shadow-black/20"
+    >
+      <p className="text-2xl">💬</p>
+      <p className="mt-3 text-sm font-black text-white">Mesaj</p>
+      <p className="mt-1 text-xs leading-5 text-slate-400">
+        Cevap akışı hazırla
+      </p>
+    </a>
+
+    <a
+      href="/firsat-takibi"
+      className="rounded-[1.4rem] border border-orange-300/15 bg-orange-300/[0.07] p-4 shadow-xl shadow-black/20"
+    >
+      <p className="text-2xl">🎯</p>
+      <p className="mt-3 text-sm font-black text-white">Fırsat</p>
+      <p className="mt-1 text-xs leading-5 text-slate-400">
+        Lead sürecini takip et
+      </p>
+    </a>
+  </div>
+
+  <a
+    href="/kampanya-karnesi"
+    className="block rounded-[1.5rem] border border-blue-300/15 bg-blue-300/[0.07] p-5 shadow-xl shadow-black/20"
+  >
+    <div className="flex items-center justify-between gap-3">
+      <div>
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-200">
+          Performans
+        </p>
+        <p className="mt-2 text-lg font-black text-white">Kampanya Karnesi</p>
+        <p className="mt-1 text-sm leading-6 text-slate-400">
+          Reklam sonuçlarını ölç, maliyet ve dönüşümü analiz et.
+        </p>
+      </div>
+      <span className="text-3xl">📊</span>
+    </div>
+  </a>
+
+  <a
+    href="/sektor-zekasi"
+    className="block rounded-[1.5rem] border border-cyan-300/15 bg-white/[0.055] p-5 shadow-xl shadow-black/20"
+  >
+    <div className="flex items-center justify-between gap-3">
+      <div>
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-cyan-200">
+          AdMind Core
+        </p>
+        <p className="mt-2 text-lg font-black text-white">Sektör Zekâsı</p>
+        <p className="mt-1 text-sm leading-6 text-slate-400">
+          Sektöre göre reklam dili, CTA ve kampanya yönü önerisi al.
+        </p>
+      </div>
+      <span className="text-3xl">🧠</span>
+    </div>
+  </a>
+</section>
 
           <header className="mb-8 hidden overflow-hidden rounded-[2rem] border border-cyan-300/10 bg-white/[0.06] p-5 shadow-2xl shadow-cyan-950/40 backdrop-blur-2xl md:block lg:p-8">
   <div className="relative">
@@ -584,14 +669,99 @@ export default function Home() {
     <div className="mb-5 flex flex-col justify-between gap-4 sm:mb-6 sm:flex-row sm:items-center">
       <div>
 
-                  <DashboardActionCenter />
+                 <section className="space-y-4 pb-10 md:hidden">
+  <div className="grid grid-cols-2 gap-3">
+    <a
+      href="/reklam-paketi"
+      className="rounded-[1.4rem] border border-cyan-300/15 bg-cyan-300/[0.07] p-4 shadow-xl shadow-black/20"
+    >
+      <p className="text-2xl">✨</p>
+      <p className="mt-3 text-sm font-black text-white">Reklam Paketi</p>
+      <p className="mt-1 text-xs leading-5 text-slate-400">
+        Yeni kampanya üret
+      </p>
+    </a>
 
-                  <ProductFlowMap />
+    <a
+      href="/gorsel-studyosu"
+      className="rounded-[1.4rem] border border-purple-300/15 bg-purple-300/[0.07] p-4 shadow-xl shadow-black/20"
+    >
+      <p className="text-2xl">🖼️</p>
+      <p className="mt-3 text-sm font-black text-white">Görsel Stüdyo</p>
+      <p className="mt-1 text-xs leading-5 text-slate-400">
+        Brief ve prompt üret
+      </p>
+    </a>
 
-                  <h2 className="text-2xl font-bold">Son Kampanyalar</h2>
-                  <p className="mt-1 text-sm text-slate-400">
-                    Supabase’den gelen en güncel aktif kampanyalar
-                  </p>
+    <a
+      href="/mesajdan-musteriye"
+      className="rounded-[1.4rem] border border-emerald-300/15 bg-emerald-300/[0.07] p-4 shadow-xl shadow-black/20"
+    >
+      <p className="text-2xl">💬</p>
+      <p className="mt-3 text-sm font-black text-white">Mesaj</p>
+      <p className="mt-1 text-xs leading-5 text-slate-400">
+        Cevap akışı hazırla
+      </p>
+    </a>
+
+    <a
+      href="/firsat-takibi"
+      className="rounded-[1.4rem] border border-orange-300/15 bg-orange-300/[0.07] p-4 shadow-xl shadow-black/20"
+    >
+      <p className="text-2xl">🎯</p>
+      <p className="mt-3 text-sm font-black text-white">Fırsat</p>
+      <p className="mt-1 text-xs leading-5 text-slate-400">
+        Lead sürecini takip et
+      </p>
+    </a>
+  </div>
+
+  <a
+    href="/kampanya-karnesi"
+    className="block rounded-[1.5rem] border border-blue-300/15 bg-blue-300/[0.07] p-5 shadow-xl shadow-black/20"
+  >
+    <div className="flex items-center justify-between gap-3">
+      <div className="min-w-0">
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-200">
+          Performans
+        </p>
+        <p className="mt-2 text-lg font-black text-white">Kampanya Karnesi</p>
+        <p className="mt-1 text-sm leading-6 text-slate-400">
+          Reklam sonuçlarını ölç, maliyet ve dönüşümü analiz et.
+        </p>
+      </div>
+      <span className="shrink-0 text-3xl">📊</span>
+    </div>
+  </a>
+
+  <a
+    href="/sektor-zekasi"
+    className="block rounded-[1.5rem] border border-cyan-300/15 bg-white/[0.055] p-5 shadow-xl shadow-black/20"
+  >
+    <div className="flex items-center justify-between gap-3">
+      <div className="min-w-0">
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-cyan-200">
+          AdMind Core
+        </p>
+        <p className="mt-2 text-lg font-black text-white">Sektör Zekâsı</p>
+        <p className="mt-1 text-sm leading-6 text-slate-400">
+          Sektöre göre reklam dili, CTA ve kampanya yönü önerisi al.
+        </p>
+      </div>
+      <span className="shrink-0 text-3xl">🧠</span>
+    </div>
+  </a>
+</section>
+
+<div className="hidden md:block">
+  <DashboardActionCenter />
+
+  <ProductFlowMap />
+
+  <h2 className="text-2xl font-bold">Son Kampanyalar</h2>
+  <p className="mt-1 text-sm text-slate-400">
+    Supabase’den gelen en güncel aktif kampanyalar
+  </p>
                 </div>
 
                 <a
@@ -731,6 +901,7 @@ export default function Home() {
               </div>
             </div>
           </div>
+        </div>
         </section>
       </div>
     </main>
