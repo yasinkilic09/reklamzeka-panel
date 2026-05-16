@@ -7,16 +7,41 @@ import { useState } from "react";
 import { MemberMenu } from "@/components/member-menu";
 
 const navItems = [
-  { title: "Dashboard", href: "/" },
-  { title: "Kampanya Oluştur", href: "/kampanya-olustur" },
-  { title: "Reklam Paketi", href: "/reklam-paketi" },
-  { title: "Görsel Stüdyo", href: "/gorsel-studyosu" },
-  { title: "Mesaj → Müşteri", href: "/mesajdan-musteriye" },
-  { title: "Fırsat Takibi", href: "/firsat-takibi" },
-  { title: "Kampanya Karnesi", href: "/kampanya-karnesi" },
-  { title: "İşletme Profilleri", href: "/isletme-profilleri" },
-  { title: "Geçmiş Kampanyalar", href: "/gecmis-kampanyalar" },
-  { title: "Arşiv", href: "/arsivlenen-kampanyalar" },
+  {
+    label: "Dashboard",
+    href: "/",
+    icon: "🏠",
+  },
+  {
+    label: "Reklam Paketi",
+    href: "/reklam-paketi",
+    icon: "✨",
+  },
+  {
+    label: "Görsel Stüdyosu",
+    href: "/gorsel-studyosu",
+    icon: "🖼️",
+  },
+  {
+    label: "Mesaj → Müşteri",
+    href: "/mesajdan-musteriye",
+    icon: "💬",
+  },
+  {
+    label: "Fırsat Takibi",
+    href: "/firsat-takibi",
+    icon: "🎯",
+  },
+  {
+    label: "Kampanya Karnesi",
+    href: "/kampanya-karnesi",
+    icon: "📊",
+  },
+  {
+    label: "Sektör Zekâsı",
+    href: "/sektor-zekasi",
+    icon: "🧠",
+  },
 ];
 
 export function AppTopNav() {
@@ -59,22 +84,23 @@ export function AppTopNav() {
         <div className="hidden items-center gap-3 xl:flex">
           <nav className="flex items-center gap-2">
             {navItems.map((item) => {
-              const active = isActive(item.href);
+  const isActive = pathname === item.href;
 
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`rounded-2xl px-4 py-3 text-sm font-semibold transition ${
-                    active
-                      ? "bg-cyan-400/10 text-cyan-200 ring-1 ring-cyan-400/20"
-                      : "text-slate-300 hover:bg-white/10 hover:text-white"
-                  }`}
-                >
-                  {item.title}
-                </Link>
-              );
-            })}
+  return (
+    <Link
+      key={item.href}
+      href={item.href}
+      className={`group inline-flex items-center gap-2 rounded-2xl border px-3.5 py-2.5 text-sm font-bold transition ${
+        isActive
+          ? "border-cyan-300/30 bg-cyan-300/10 text-cyan-100 shadow-lg shadow-cyan-950/30"
+          : "border-white/10 bg-white/[0.035] text-slate-300 hover:border-cyan-300/25 hover:bg-cyan-300/10 hover:text-cyan-100"
+      }`}
+    >
+      <span className="text-base">{item.icon}</span>
+      <span>{item.label}</span>
+    </Link>
+  );
+})}
           </nav>
 
           <MemberMenu />
