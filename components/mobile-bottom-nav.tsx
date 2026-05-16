@@ -57,9 +57,9 @@ export function MobileBottomNav() {
 
   return (
     <>
-      <div className="h-24 md:hidden" aria-hidden="true" />
+      <div className="h-36 md:hidden" aria-hidden="true" />
 
-      <nav className="fixed inset-x-0 bottom-0 z-[80] border-t border-white/10 bg-slate-950/90 px-3 pb-[calc(env(safe-area-inset-bottom)+0.6rem)] pt-2 shadow-2xl shadow-black/40 backdrop-blur-2xl md:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-[80] border-t border-white/10 bg-slate-950/90 px-3 pb-[calc(env(safe-area-inset-bottom)+0.9rem)] pt-2 shadow-2xl shadow-black/40 backdrop-blur-2xl md:hidden">
         <div className="mx-auto grid max-w-md grid-cols-5 gap-1 rounded-[1.4rem] border border-white/10 bg-white/[0.04] p-1.5">
           {mobileNavItems.map((item) => {
             const active = isActive(item.href);

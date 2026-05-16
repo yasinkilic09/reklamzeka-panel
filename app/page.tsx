@@ -335,7 +335,7 @@ export default function Home() {
           </div>
         </aside>
 
-        <section className="min-w-0 flex-1 overflow-x-hidden px-3 py-4 sm:px-5 sm:py-6 lg:px-10 lg:py-8">
+        <section className="min-w-0 flex-1 overflow-x-hidden px-3 pb-36 pt-4 sm:px-5 sm:pb-40 sm:pt-6 lg:px-10 lg:pb-8 lg:pt-8">
           <div className="sticky top-3 z-40 mb-5 overflow-hidden rounded-[1.5rem] border border-white/10 bg-slate-950/80 p-4 shadow-2xl shadow-black/30 backdrop-blur-2xl lg:hidden">
   <div className="flex items-center justify-between gap-3">
     <div className="flex items-center gap-3">
