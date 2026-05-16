@@ -117,6 +117,11 @@ const menuItems = [
   active: false,
   icon: "📊",
 },
+{
+  title: "Sektör Zekâsı",
+  href: "/sektor-zekasi",
+  icon: "🧠",
+},
 ];
 
 function mapCampaign(row: SupabaseCampaign): SavedCampaign {
@@ -290,7 +295,7 @@ export default function Home() {
           <nav className="space-y-2 text-sm">
             {menuItems.map((item) => (
               <a
-                key={item.title}
+                key={item.href}
                 href={item.href}
                 className={`group flex items-center gap-3 rounded-2xl px-4 py-3 transition ${
                   item.active
