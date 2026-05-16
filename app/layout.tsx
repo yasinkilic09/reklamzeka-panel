@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
 import { PWARegister } from "@/components/pwa-register";
+import { MobileBottomNav } from "@/components/mobile-bottom-nav";
+import { PWAInstallPrompt } from "@/components/pwa-install-prompt";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -38,7 +40,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="tr" suppressHydrationWarning>
-      <body className={`${geistSans.className} antialiased`}><PWARegister />{children}</body>
+      <body className={`${geistSans.className} antialiased`}>
+  <PWARegister />
+  {children}
+  <PWAInstallPrompt />
+  <MobileBottomNav />
+</body>
     </html>
   );
 }
