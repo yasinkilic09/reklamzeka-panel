@@ -335,7 +335,7 @@ export default function Home() {
           </div>
         </aside>
 
-        <section className="flex-1 px-3 py-4 sm:px-5 sm:py-6 lg:px-10 lg:py-8">
+        <section className="min-w-0 flex-1 px-3 py-4 sm:px-5 sm:py-6 lg:px-10 lg:py-8">
           <div className="sticky top-3 z-40 mb-5 overflow-hidden rounded-[1.5rem] border border-white/10 bg-slate-950/80 p-4 shadow-2xl shadow-black/30 backdrop-blur-2xl lg:hidden">
   <div className="flex items-center justify-between gap-3">
     <div className="flex items-center gap-3">
@@ -379,86 +379,95 @@ export default function Home() {
     </a>
   </nav>
 </div>
-<header className="mb-6 rounded-[1.5rem] border border-cyan-300/10 bg-white/[0.06] p-4 shadow-2xl shadow-cyan-950/30 backdrop-blur-2xl md:hidden">
-  <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-400/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-200">
-    <span className="relative flex h-2 w-2">
+<header className="mb-6 w-full max-w-full overflow-hidden rounded-[1.5rem] border border-cyan-300/10 bg-white/[0.06] p-4 shadow-2xl shadow-cyan-950/30 backdrop-blur-2xl md:hidden">
+  <div className="mb-4 inline-flex max-w-full items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-400/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-200">
+    <span className="relative flex h-2 w-2 shrink-0">
       <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-300 opacity-75" />
       <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-300" />
     </span>
-    AdMind Core Aktif
+    <span className="truncate">AdMind Core Aktif</span>
   </div>
 
-  <h1 className="text-[2rem] font-black leading-[1.05] tracking-tight text-white">
-    Reklamdan müşteriye giden süreci{" "}
-    <span className="bg-gradient-to-r from-cyan-300 via-blue-300 to-purple-300 bg-clip-text text-transparent">
+  <h1 className="max-w-full text-[1.8rem] font-black leading-[1.08] tracking-tight text-white">
+    <span className="block">Reklamdan müşteriye</span>
+    <span className="block">giden süreci</span>
+    <span className="block bg-gradient-to-r from-cyan-300 via-blue-300 to-purple-300 bg-clip-text text-transparent">
       yapay zekâ ile yönet
     </span>
   </h1>
 
-  <p className="mt-4 text-sm leading-7 text-slate-300">
+  <p className="mt-4 max-w-full text-sm leading-7 text-slate-300">
     Reklam paketi, görsel brief, müşteri mesajı, fırsat takibi ve kampanya
     karnesini tek mobil panelde yönet.
   </p>
 
-  <div className="mt-5 grid gap-3">
+  <div className="mt-5 grid w-full gap-3">
     <a
       href="/reklam-paketi"
-      className="rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 px-5 py-4 text-center text-sm font-black text-white shadow-lg shadow-cyan-600/25"
+      className="w-full rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 px-5 py-4 text-center text-sm font-black text-white shadow-lg shadow-cyan-600/25"
     >
       Reklam Paketi Oluştur
     </a>
 
-    <div className="grid grid-cols-2 gap-3">
+    <div className="grid w-full grid-cols-1 gap-3">
       <a
         href="/gorsel-studyosu"
-        className="rounded-2xl border border-purple-300/20 bg-purple-500/10 px-4 py-3 text-center text-xs font-bold text-purple-100"
+        className="w-full rounded-2xl border border-purple-300/20 bg-purple-500/10 px-4 py-3 text-center text-xs font-bold text-purple-100"
       >
         Görsel Stüdyo
       </a>
 
       <a
         href="/mesajdan-musteriye"
-        className="rounded-2xl border border-emerald-300/20 bg-emerald-400/10 px-4 py-3 text-center text-xs font-bold text-emerald-100"
+        className="w-full rounded-2xl border border-emerald-300/20 bg-emerald-400/10 px-4 py-3 text-center text-xs font-bold text-emerald-100"
       >
         Mesaj → Müşteri
       </a>
     </div>
   </div>
 
-  <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950/45 p-4">
+  <div className="mt-5 w-full max-w-full overflow-hidden rounded-2xl border border-white/10 bg-slate-950/45 p-4">
     <div className="flex items-center justify-between gap-3">
-      <div>
-        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-200">
+      <div className="min-w-0">
+        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-200">
           Öğrenen AI
         </p>
-        <p className="mt-1 text-sm font-black text-white">AdMind Core</p>
+        <p className="mt-1 truncate text-sm font-black text-white">
+          AdMind Core
+        </p>
       </div>
 
-      <span className="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-[10px] font-black text-cyan-200">
+      <span className="shrink-0 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-[10px] font-black text-cyan-200">
         LEARNING
       </span>
     </div>
 
-    <div className="mt-4 grid grid-cols-3 gap-2">
-      <div className="rounded-xl border border-cyan-300/10 bg-cyan-300/[0.055] p-2 text-center">
-        <p className="text-[9px] uppercase tracking-[0.16em] text-slate-500">
+    <div className="mt-4 grid w-full grid-cols-3 gap-2">
+      <div className="min-w-0 rounded-xl border border-cyan-300/10 bg-cyan-300/[0.055] p-2 text-center">
+        <p className="truncate text-[8px] uppercase tracking-[0.12em] text-slate-500">
           Hafıza
         </p>
-        <p className="mt-1 text-[11px] font-black text-cyan-200">Büyüyor</p>
+        <p className="mt-1 truncate text-[10px] font-black text-cyan-200">
+          Büyüyor
+        </p>
       </div>
 
-      <div className="rounded-xl border border-purple-300/10 bg-purple-300/[0.055] p-2 text-center">
-        <p className="text-[9px] uppercase tracking-[0.16em] text-slate-500">
+      <div className="min-w-0 rounded-xl border border-purple-300/10 bg-purple-300/[0.055] p-2 text-center">
+        <p className="truncate text-[8px] uppercase tracking-[0.12em] text-slate-500">
           Analiz
         </p>
-        <p className="mt-1 text-[11px] font-black text-purple-200">Aktif</p>
+        <p className="mt-1 truncate text-[10px] font-black text-purple-200">
+          Aktif
+        </p>
       </div>
 
-      <div className="rounded-xl border border-emerald-300/10 bg-emerald-300/[0.055] p-2 text-center">
-        <p className="text-[9px] uppercase tracking-[0.16em] text-slate-500">
+      <div className="min-w-0 rounded-xl border border-emerald-300/10 bg-emerald-300/[0.055] p-2 text-center">
+        <p className="truncate text-[8px] uppercase tracking-[0.12em] text-slate-500">
           Öneri
         </p>
-        <p className="mt-1 text-[11px] font-black text-emerald-200">Hazır</p>
+        <p className="mt-1 truncate text-[10px] font-black text-emerald-200">
+          Hazır
+        </p>
       </div>
     </div>
   </div>
