@@ -254,10 +254,10 @@ export default function Home() {
   }
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#050712] text-white">
+    <main className="relative min-h-screen w-full max-w-[100vw] overflow-x-hidden bg-[#050712] text-white">
   <AIBackground />
 
-       <div className="relative z-10 flex min-h-screen w-full max-w-full overflow-x-hidden">
+       <div className="relative z-10 flex min-h-screen w-full max-w-[100vw] overflow-x-hidden">
         <aside className="hidden w-80 border-r border-white/10 bg-white/[0.035] p-6 backdrop-blur-2xl lg:block">
           <div className="mb-10">
             <div className="flex items-center gap-3">
@@ -335,7 +335,7 @@ export default function Home() {
           </div>
         </aside>
 
-        <section className="min-w-0 flex-1 px-3 py-4 sm:px-5 sm:py-6 lg:px-10 lg:py-8">
+        <section className="min-w-0 flex-1 overflow-x-hidden px-3 py-4 sm:px-5 sm:py-6 lg:px-10 lg:py-8">
           <div className="sticky top-3 z-40 mb-5 overflow-hidden rounded-[1.5rem] border border-white/10 bg-slate-950/80 p-4 shadow-2xl shadow-black/30 backdrop-blur-2xl lg:hidden">
   <div className="flex items-center justify-between gap-3">
     <div className="flex items-center gap-3">
@@ -627,8 +627,8 @@ export default function Home() {
                   </a>
                 </div>
               ) : (
-                <div className="overflow-hidden rounded-[1.5rem] border border-white/10">
-                  <table className="w-full text-left text-sm">
+                <div className="w-full max-w-full overflow-x-auto rounded-[1.5rem] border border-white/10">
+  <table className="min-w-[720px] w-full text-left text-sm">
                     <thead className="bg-white/[0.07] text-slate-300">
                       <tr>
                         <th className="px-5 py-4 font-medium">İşletme</th>
